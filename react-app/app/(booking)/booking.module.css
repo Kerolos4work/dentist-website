@@ -295,8 +295,9 @@
 
 /* Single session-card design: time first, with optional availability text. */
 .sessionGridBare {
-  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
-  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 .sessionCardBare {
@@ -306,7 +307,8 @@
   justify-items: center;
   gap: 8px;
   min-height: 82px;
-  padding: 16px 12px 14px;
+  padding-block: 14px;
+  padding-inline: 12px 48px;
   overflow: hidden;
   background: linear-gradient(180deg, #0c1114 0%, #07090a 100%);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
@@ -317,7 +319,7 @@
   content: '';
   position: absolute;
   inset-block-end: 0;
-  inset-inline: 14px;
+  inset-inline: 14px 48px;
   height: 2px;
   background: linear-gradient(
     90deg,
@@ -357,6 +359,58 @@
 
 .sessionCardActive .bareTime {
   color: var(--cyan-soft);
+}
+
+.timeMeridiem {
+  margin-inline-start: 3px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  vertical-align: 0.2em;
+}
+
+.sessionCardActive .timeMeridiem {
+  color: var(--cyan-soft);
+}
+
+.timeSeparator {
+  margin-inline: 4px;
+  color: var(--dim);
+}
+
+/* Numbered ribbon on the left edge of each session card. */
+.sessionNumber {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  background: linear-gradient(
+    180deg,
+    rgba(45, 167, 196, 0.9),
+    rgba(45, 167, 196, 0.52)
+  );
+  color: #04171d;
+  font-family: var(--font-anton), Impact, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 calc(100% - 9px));
+}
+
+.sessionCardBare.sessionCardActive .sessionNumber {
+  background: var(--cyan);
+}
+
+.sessionArrow {
+  display: grid;
+  place-items: center;
+  height: 20px;
+  color: var(--cyan);
+  font-family: var(--font-cairo), Cairo, sans-serif;
+  font-size: 14px;
+  line-height: 1;
 }
 
 /* Plain text, shown only when two or fewer places remain. */
