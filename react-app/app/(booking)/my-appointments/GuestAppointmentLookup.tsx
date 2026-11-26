@@ -33,7 +33,7 @@ export default function GuestAppointmentLookup() {
     setTimeout(() => {
       const target = document.getElementById(field);
       if (!target) return;
-      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      target.scrollIntoView({ behavior: 'instant', block: 'center' });
       target.focus({ preventScroll: true });
     });
   }, []);

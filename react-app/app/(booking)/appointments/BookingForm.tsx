@@ -89,6 +89,20 @@ async function functionErrorMessage(error: unknown): Promise<string> {
   return 'تعذّر إتمام الحجز. حاول لاحقًا.';
 }
 
+function errorFieldForMessage(message: string): string {
+  if (message.includes('الاسم')) return 'fullName';
+  if (message.includes('رقم الهاتف')) return 'phone';
+  if (message.includes('البريد الإلكتروني')) return 'email';
+  if (message.includes('التخصص')) return 'service';
+  if (message.includes('الدفع') || message.includes('وسيلة')) return 'provider-field';
+  if (
+    /جلسة|يوم|وقت|تاريخ|حجز بالفعل|أماكن/.test(message)
+  ) {
+    return 'session-field';
+  }
+  return 'booking-error';
+}
+
 export default function BookingForm({ config }: Props) {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -115,10 +129,16 @@ export default function BookingForm({ config }: Props) {
     setTimeout(() => {
       const target = document.getElementById(field);
       if (!target) return;
-      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      target.scrollIntoView({ behavior: 'instant', block: 'center' });
       target.focus({ preventScroll: true });
     });
   }, []);
+
+  function inlineError(field: string) {
+    return errorField === field && status ? (
+      <p className={styles.fieldError}>{status}</p>
+    ) : null;
+  }
 
   // Sessions come from the database so the same quotas, closures and doctor
   // schedule shown here are the ones enforced when the booking is inserted.
@@ -246,14 +266,15 @@ export default function BookingForm({ config }: Props) {
     });
 
     if (error) {
-      showError(await functionErrorMessage(error));
+      const message = await functionErrorMessage(error);
+      showError(message, errorFieldForMessage(message));
       setBusy(false);
       return;
     }
 
     const booked = data as BookingResponse;
     if (booked.error) {
-      showError(booked.error);
+      showError(booked.error, errorFieldForMessage(booked.error));
       setBusy(false);
       return;
     }
@@ -388,6 +409,7 @@ export default function BookingForm({ config }: Props) {
             }}
             placeholder="الاسم كما يظهر في جواز السفر أو الهوية"
           />
+          {inlineError('fullName')}
         </div>
 
         <div
@@ -413,6 +435,7 @@ export default function BookingForm({ config }: Props) {
             }}
             placeholder="+20 12 85827427"
           />
+          {inlineError('phone')}
         </div>
 
         <div
@@ -436,9 +459,14 @@ export default function BookingForm({ config }: Props) {
             }}
             placeholder="name@example.com"
           />
+          {inlineError('email')}
         </div>
 
-        <div className={styles.field}>
+        <div
+          className={`${styles.field} ${
+            errorField === 'service' ? styles.fieldGlow : ''
+          }`}
+        >
           <label className={styles.label} htmlFor="service">
             التخصص (اختياري)
           </label>
@@ -446,7 +474,10 @@ export default function BookingForm({ config }: Props) {
             id="service"
             className={styles.select}
             value={serviceId}
-            onChange={(event) => setServiceId(event.target.value)}
+            onChange={(event) => {
+              setServiceId(event.target.value);
+              setErrorField('');
+            }}
           >
             <option value="">{generalCheckupService.label} — بدون تحديد</option>
             {appointmentServices.map((service) => (
@@ -455,6 +486,7 @@ export default function BookingForm({ config }: Props) {
               </option>
             ))}
           </select>
+          {inlineError('service')}
         </div>
 
         <h2 className={styles.cardTitle}>موعدك</h2>
@@ -583,6 +615,7 @@ export default function BookingForm({ config }: Props) {
                 : 'لا توجد جلسات متاحة لهذا اليوم.'}
             </p>
           )}
+          {inlineError('session-field')}
         </div>
 
         <div className={styles.field}>
@@ -703,6 +736,7 @@ export default function BookingForm({ config }: Props) {
                   لم يُفعّل أي مزود دفع. تواصل مع العيادة.
                 </p>
               ) : null}
+              {inlineError('provider-field')}
             </div>
           ) : null}
         </div>
