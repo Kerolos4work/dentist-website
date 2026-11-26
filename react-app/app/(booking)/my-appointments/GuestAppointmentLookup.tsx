@@ -80,28 +80,12 @@ export default function GuestAppointmentLookup() {
       <div className={styles.card}>
         <h2 className={styles.cardTitle}>ابحث عن حجزك</h2>
         <p className={styles.cardNote}>
-          أدخل رقم الحجز الذي ظهر لك بعد التأكيد، ورقم الهاتف المستخدم في الحجز.
+          ابحث برقم الهاتف المستخدم في الحجز. رقم الحجز اختياري إذا أردت تحديد موعد بعينه.
         </p>
 
         {status ? <p className={`${styles.message} ${styles.error}`}>{status}</p> : null}
 
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="reference">
-            رقم الحجز
-          </label>
-          <input
-            id="reference"
-            type="text"
-            dir="ltr"
-            required
-            className={styles.input}
-            value={reference}
-            onChange={(event) => setReference(event.target.value)}
-            placeholder="AY-123456"
-          />
-        </div>
-
-        <div className={styles.field}>
+        <div className={`${styles.field} ${styles.lookupPrimaryField}`}>
           <label className={styles.label} htmlFor="lookup-phone">
             رقم الهاتف
           </label>
@@ -111,10 +95,25 @@ export default function GuestAppointmentLookup() {
             dir="ltr"
             inputMode="tel"
             required
-            className={styles.input}
+            className={`${styles.input} ${styles.lookupInput}`}
             value={phone}
             onChange={(event) => setPhone(event.target.value)}
             placeholder="+20 12 85827427"
+          />
+        </div>
+
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="reference">
+            رقم الحجز (اختياري)
+          </label>
+          <input
+            id="reference"
+            type="text"
+            dir="ltr"
+            className={styles.input}
+            value={reference}
+            onChange={(event) => setReference(event.target.value)}
+            placeholder="AY-123456"
           />
         </div>
 
@@ -122,7 +121,7 @@ export default function GuestAppointmentLookup() {
           <button
             type="button"
             className={styles.primary}
-            disabled={busy || !reference.trim() || !phone.trim()}
+            disabled={busy || !phone.trim()}
             onClick={() => void lookup()}
           >
             {busy ? 'جارٍ البحث…' : 'اعرض موعدي'}
@@ -137,7 +136,7 @@ export default function GuestAppointmentLookup() {
         <h2 className={styles.cardTitle}>تفاصيل الموعد</h2>
         {!appointment ? (
           <p className={styles.cardNote}>
-            لن تظهر التفاصيل إلا بعد إدخال رقم الحجز ورقم الهاتف بشكل صحيح.
+            أدخل رقم الهاتف لعرض آخر حجز مرتبط به.
           </p>
         ) : (
           <>

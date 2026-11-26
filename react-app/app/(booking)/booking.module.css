@@ -50,6 +50,11 @@
   align-items: start;
 }
 
+.summaryCard {
+  position: sticky;
+  top: 88px;
+}
+
 .card {
   border: 1px solid var(--line);
   background: #0b0e10;
@@ -234,10 +239,15 @@
 }
 
 .calendarDayActive {
-  border-color: var(--red);
-  background: var(--red);
-  color: var(--text);
+  border-color: var(--cyan);
+  background: var(--cyan);
+  color: #04171d;
   font-weight: 800;
+}
+
+.calendarDayNext {
+  color: var(--cyan-soft);
+  border-color: rgba(45, 167, 196, 0.24);
 }
 
 .calendarHint {
@@ -248,26 +258,42 @@
 
 .sessionGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(138px, 1fr));
+  gap: 8px;
 }
 
 .sessionCard {
   display: grid;
-  gap: 4px;
-  padding: 14px;
+  gap: 2px;
+  min-height: 58px;
+  padding: 10px 12px;
   border: 1px solid var(--line);
   background: #07090a;
   color: var(--muted);
   font: inherit;
-  font-size: 12px;
   text-align: start;
   cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
 }
 
-.sessionCard b {
+.sessionTime {
   color: var(--text);
-  font-size: 14px;
+  font-family: var(--font-anton), Impact, sans-serif;
+  font-size: 18px;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+
+.sessionMeta,
+.sessionRemaining {
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.sessionRemaining {
+  color: var(--cyan-soft);
 }
 
 .sessionCard:hover:not(:disabled) {
@@ -275,8 +301,13 @@
 }
 
 .sessionCardActive {
-  border-color: var(--red);
-  background: rgba(196, 37, 54, 0.08);
+  border-color: var(--cyan);
+  background: rgba(45, 167, 196, 0.1);
+}
+
+.sessionCardActive .sessionTime,
+.sessionCardActive .sessionRemaining {
+  color: var(--cyan-soft);
 }
 
 .sessionCard:disabled {
@@ -284,37 +315,62 @@
   cursor: not-allowed;
 }
 
-.queueCard {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  gap: 4px 16px;
-  margin-bottom: 24px;
-  padding: 18px 20px;
-  border: 1px solid var(--red);
-  background: rgba(196, 37, 54, 0.08);
+.confirmationCard {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: clamp(26px, 4vw, 44px);
+  border: 1px solid rgba(45, 167, 196, 0.46);
+  background: #0b0e10;
+  text-align: center;
 }
 
-.queueCard > span {
+.confirmationHead {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.confirmationKicker {
+  color: var(--cyan-soft);
+  font-family: var(--font-anton), Impact, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+}
+
+.confirmationHead .cardTitle {
+  margin: 0;
+  font-size: 22px;
+}
+
+.queueHero {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  margin-bottom: 22px;
+  padding: 18px 20px;
+  border-block: 1px solid rgba(45, 167, 196, 0.24);
+}
+
+.queueHero b {
+  color: var(--cyan-soft);
+  font-family: var(--font-anton), Impact, sans-serif;
+  font-size: clamp(64px, 12vw, 104px);
+  font-weight: 400;
+  line-height: 0.92;
+}
+
+.queueHero span {
   color: var(--muted);
   font-size: 13px;
 }
 
-.queueCard > span:first-child {
-  grid-column: 2;
-  grid-row: 1;
+.confirmationCard .cardNote {
+  margin-bottom: 22px;
 }
 
-.queueCard > b {
-  grid-column: 1;
-  grid-row: 1 / span 2;
-  font-size: 36px;
-  line-height: 1;
-}
-
-.queueCard > span:last-child {
-  grid-column: 2;
-  grid-row: 2;
+.confirmationCard .summary,
+.confirmationCard .actions {
+  text-align: start;
 }
 
 .providerRow {
@@ -335,8 +391,9 @@
 }
 
 .providerActive {
-  border-color: var(--red);
-  color: var(--text);
+  border-color: var(--cyan);
+  background: rgba(45, 167, 196, 0.1);
+  color: var(--cyan-soft);
 }
 
 .provider:disabled {
@@ -402,6 +459,16 @@
 .error {
   border-inline-start-color: var(--red);
   background: rgba(196, 37, 54, 0.1);
+}
+
+.lookupPrimaryField {
+  margin-bottom: 24px;
+}
+
+.lookupInput {
+  padding-block: 16px;
+  border-color: rgba(45, 167, 196, 0.46);
+  font-size: 16px;
 }
 
 .summary {
@@ -555,6 +622,10 @@
 @media (max-width: 860px) {
   .grid {
     grid-template-columns: 1fr;
+  }
+
+  .summaryCard {
+    position: static;
   }
 
   .barInner {

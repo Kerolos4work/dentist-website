@@ -153,6 +153,7 @@ export default function BookingForm({ config }: Props) {
   const selectedSession = sessions.find(
     (session) => session.session_start === sessionStart
   );
+  const visibleSessions = sessions.slice(0, 5);
   const today = todayIso();
 
   if (!config) {
@@ -268,19 +269,22 @@ export default function BookingForm({ config }: Props) {
 
   if (confirmation) {
     return (
-      <div className={styles.card}>
-        <h2 className={styles.cardTitle}>تم تسجيل طلبك</h2>
-        <p className={styles.cardNote}>
-          احتفظ برقم الحجز، واستخدم الاسم ورقم الهاتف اللذين أدخلتهما عند الحجز.
-        </p>
+      <div className={styles.confirmationCard}>
+        <div className={styles.confirmationHead}>
+          <span className={styles.confirmationKicker}>تم تسجيل طلبك</span>
+          <h2 className={styles.cardTitle}>رقم دورك</h2>
+        </div>
 
-        <div className={styles.queueCard}>
-          <span>رقم دورك</span>
+        <div className={styles.queueHero}>
           <b dir="ltr">{confirmation.queueNumber}</b>
           <span>
             الانتظار المتوقع {confirmation.expectedWaitMinutes} دقيقة
           </span>
         </div>
+
+        <p className={styles.cardNote}>
+          احتفظ برقم الحجز، واستخدم الاسم ورقم الهاتف اللذين أدخلتهما عند الحجز.
+        </p>
 
         <div className={styles.summary}>
           <div className={styles.summaryRow}>
@@ -463,9 +467,14 @@ export default function BookingForm({ config }: Props) {
               {calendarDays.map((cell) => {
                 const cellIso = isoDate(cell);
                 const outsideMonth =
-                  cell.getMonth() !== visibleMonth.getMonth();
+                  cell.getMonth() !== visibleMonth.getMonth() ||
+                  cell.getFullYear() !== visibleMonth.getFullYear();
+                const isNextMonth =
+                  cell.getFullYear() > visibleMonth.getFullYear() ||
+                  (cell.getFullYear() === visibleMonth.getFullYear() &&
+                    cell.getMonth() > visibleMonth.getMonth());
                 const disabled =
-                  outsideMonth ||
+                  (outsideMonth && !isNextMonth) ||
                   cellIso < today ||
                   !isOpenDay(config, cellIso);
                 const selected = cellIso === date;
@@ -476,11 +485,18 @@ export default function BookingForm({ config }: Props) {
                     type="button"
                     className={`${styles.calendarDay} ${
                       selected ? styles.calendarDayActive : ''
-                    }`}
+                    } ${isNextMonth ? styles.calendarDayNext : ''}`}
                     disabled={disabled}
                     aria-label={cellIso}
                     aria-pressed={selected}
-                    onClick={() => setDate(cellIso)}
+                    onClick={() => {
+                      if (isNextMonth) {
+                        setVisibleMonth(
+                          new Date(cell.getFullYear(), cell.getMonth(), 1)
+                        );
+                      }
+                      setDate(cellIso);
+                    }}
                   >
                     {cell.getDate()}
                   </button>
@@ -495,9 +511,9 @@ export default function BookingForm({ config }: Props) {
 
         <div className={styles.field}>
           <span className={styles.label}>جلسة الطبيب</span>
-          {sessions.length ? (
+          {visibleSessions.length ? (
             <div className={styles.sessionGrid}>
-              {sessions.map((session) => {
+              {visibleSessions.map((session) => {
                 const active = session.session_start === sessionStart;
                 const full = session.remaining <= 0;
 
@@ -512,12 +528,14 @@ export default function BookingForm({ config }: Props) {
                     aria-pressed={active}
                     onClick={() => setSessionStart(session.session_start)}
                   >
-                    <b dir="ltr">{sessionRange(session)}</b>
-                    <span>وصول الطبيب {shortTime(session.doctor_arrival_time)}</span>
-                    <span>
-                      {full
-                        ? 'اكتملت الجلسة'
-                        : `متبقٍ ${session.remaining} من ${session.patient_limit}`}
+                    <span className={styles.sessionTime} dir="ltr">
+                      {sessionRange(session)}
+                    </span>
+                    <span className={styles.sessionMeta}>
+                      وصول الطبيب {shortTime(session.doctor_arrival_time)}
+                    </span>
+                    <span className={styles.sessionRemaining}>
+                      {full ? 'اكتملت' : `متبقٍ ${session.remaining}`}
                     </span>
                   </button>
                 );
@@ -564,7 +582,7 @@ export default function BookingForm({ config }: Props) {
         </div>
       </div>
 
-      <aside className={styles.card}>
+      <aside className={`${styles.card} ${styles.summaryCard}`}>
         <h2 className={styles.cardTitle}>ملخص</h2>
         <div className={styles.summary}>
           <div className={styles.summaryRow}>

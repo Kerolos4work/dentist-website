@@ -302,8 +302,9 @@ begin
 end;
 $$;
 
--- Guests read only their own booking with the reference + phone pair.
--- The return type changed, so replace the old signature explicitly.
+-- Guests read their own latest booking by phone; the reference is an
+-- optional exact filter. The return type changed, so replace the old
+-- signature explicitly.
 drop function if exists public.guest_lookup_appointment(text, text);
 
 create or replace function public.guest_lookup_appointment(
@@ -339,7 +340,7 @@ declare
   v_reference text := upper(btrim(coalesce(p_reference, '')));
   v_phone text := public.normalize_phone(p_phone);
 begin
-  if v_reference = '' or v_phone is null then
+  if v_phone is null then
     raise exception 'بيانات البحث غير صحيحة.';
   end if;
 
@@ -370,7 +371,7 @@ begin
     a.doctor_arrival_time,
     a.created_at
   from public.appointments a
-  where a.booking_reference = v_reference
+  where (v_reference = '' or a.booking_reference = v_reference)
     and (
       a.patient_phone = v_phone
       or (
