@@ -1,3 +1,4 @@
+import { isBlockedEmail } from '@/lib/supabase/config';
 import { getServerClient } from '@/lib/supabase/server';
 import type {
   Appointment,
@@ -24,7 +25,7 @@ export async function getSessionContext(): Promise<SessionContext> {
   }
 
   const { data } = await supabase.auth.getUser();
-  if (!data.user) {
+  if (!data.user || isBlockedEmail(data.user.email ?? undefined)) {
     return { configured: true, userId: null, email: null, profile: null };
   }
 

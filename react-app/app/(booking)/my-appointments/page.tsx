@@ -28,6 +28,11 @@ export default async function MyAppointmentsPage({
         </p>
       </header>
 
+      {error === 'blocked' ? (
+        <p className={`${styles.message} ${styles.error}`}>
+          لا يمكن استخدام هذا الحساب لتسجيل الدخول. يمكنك متابعة حجزك كضيف برقم الحجز ورقم الهاتف.
+        </p>
+      ) : null}
       {error === 'auth' ? (
         <p className={`${styles.message} ${styles.error}`}>
           تعذّر إتمام الدخول. حاول مرة أخرى.
