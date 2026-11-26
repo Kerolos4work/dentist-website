@@ -386,26 +386,31 @@
   color: var(--cyan);
 }
 
-/* Plain text with a red dot, shown only when two or fewer places remain. */
+/* Corner ribbon, shown only when two or fewer places remain. */
 .lowBadge {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-start: 0;
   display: inline-flex;
   align-items: center;
-  justify-self: center;
-  gap: 6px;
+  gap: 5px;
   margin: 0;
-  color: var(--red-soft, #ff7b88);
-  font-size: 11px;
-  line-height: 1.2;
+  padding: 4px 10px 4px 16px;
+  background: linear-gradient(135deg, var(--red-deep), var(--red));
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.1;
   white-space: nowrap;
+  clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%);
 }
 
 .lowBadge::before {
   content: '';
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
-  background: var(--red, #c42536);
-  box-shadow: 0 0 0 3px rgba(196, 37, 54, 0.16);
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .confirmationCard {
