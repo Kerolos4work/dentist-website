@@ -13,10 +13,16 @@ function readableError(error: unknown): string {
   return 'تعذّر إتمام الطلب. حاول لاحقًا.';
 }
 
+function canCancel(appointment: GuestAppointment): boolean {
+  return ['awaiting_payment', 'needs_review', 'confirmed'].includes(
+    appointment.status
+  );
+}
+
 export default function GuestAppointmentLookup() {
   const [reference, setReference] = useState('');
   const [phone, setPhone] = useState('');
-  const [appointment, setAppointment] = useState<GuestAppointment | null>(null);
+  const [appointments, setAppointments] = useState<GuestAppointment[]>([]);
   const [status, setStatus] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -26,7 +32,7 @@ export default function GuestAppointmentLookup() {
 
     setBusy(true);
     setStatus('');
-    setAppointment(null);
+    setAppointments([]);
 
     const { data, error } = await supabase.rpc('guest_lookup_appointment', {
       p_reference: reference.trim(),
@@ -41,39 +47,42 @@ export default function GuestAppointmentLookup() {
 
     const rows = (data ?? []) as GuestAppointment[];
     if (!rows.length) {
-      setStatus('لم نعثر على حجز بهذا الرقم ورقم الهاتف.');
+      setStatus(
+        reference.trim()
+          ? 'لم نعثر على حجز بهذا الرقم ورقم الهاتف.'
+          : 'لم نعثر على حجوز بهذا الهاتف.'
+      );
     } else {
-      setAppointment(rows[0]);
+      setAppointments(rows);
     }
     setBusy(false);
   }
 
-  async function cancel() {
-    if (!appointment) return;
+  async function cancel(targetReference: string) {
     const supabase = getBrowserClient();
     if (!supabase) return;
 
     setBusy(true);
     setStatus('');
     const { error } = await supabase.rpc('guest_cancel_appointment', {
-      p_reference: appointment.booking_reference,
+      p_reference: targetReference,
       p_phone: phone.trim(),
     });
 
     if (error) {
       setStatus(readableError(error));
     } else {
-      setAppointment({ ...appointment, status: 'cancelled' });
+      setAppointments((current) =>
+        current.map((appointment) =>
+          appointment.booking_reference === targetReference
+            ? { ...appointment, status: 'cancelled' }
+            : appointment
+        )
+      );
       setStatus('تم إلغاء الموعد.');
     }
     setBusy(false);
   }
-
-  const canCancel = appointment
-    ? ['awaiting_payment', 'needs_review', 'confirmed'].includes(
-        appointment.status
-      )
-    : false;
 
   return (
     <div className={styles.grid}>
@@ -133,90 +142,99 @@ export default function GuestAppointmentLookup() {
       </div>
 
       <aside className={styles.card}>
-        <h2 className={styles.cardTitle}>تفاصيل الموعد</h2>
-        {!appointment ? (
+        <h2 className={styles.cardTitle}>حجوزاتك</h2>
+        {!appointments.length ? (
           <p className={styles.cardNote}>
-            أدخل رقم الهاتف لعرض آخر حجز مرتبط به.
+            أدخل رقم الهاتف لعرض كل الحجوزات المرتبطة به.
           </p>
         ) : (
           <>
-            <div className={styles.summary}>
-              <div className={styles.summaryRow}>
-                <span>رقم الحجز</span>
-                <b dir="ltr">{appointment.booking_reference}</b>
-              </div>
-              <div className={styles.summaryRow}>
-                <span>المريض</span>
-                <b>{appointment.patient_name ?? '—'}</b>
-              </div>
-              <div className={styles.summaryRow}>
-                <span>الهاتف</span>
-                <b dir="ltr">{appointment.patient_phone ?? '—'}</b>
-              </div>
-              <div className={styles.summaryRow}>
-                <span>التخصص</span>
-                <b>{appointment.service_label}</b>
-              </div>
-              <div className={styles.summaryRow}>
-                <span>اليوم</span>
-                <b dir="ltr">{appointment.appointment_date}</b>
-              </div>
-              <div className={styles.summaryRow}>
-                <span>الوقت المتوقع للكشف</span>
-                <b dir="ltr">{appointment.start_time.slice(0, 5)}</b>
-              </div>
-              <div className={styles.summaryRow}>
-                <span>رقم الدور</span>
-                <b dir="ltr">{appointment.queue_number ?? '—'}</b>
-              </div>
-              <div className={styles.summaryRow}>
-                <span>الانتظار المتوقع</span>
-                <b>
-                  {appointment.expected_wait_minutes === null
-                    ? '—'
-                    : `${appointment.expected_wait_minutes} دقيقة`}
-                </b>
-              </div>
-              <div className={styles.summaryRow}>
-                <span>وصول الطبيب</span>
-                <b dir="ltr">
-                  {appointment.doctor_arrival_time?.slice(0, 5) ?? '—'}
-                </b>
-              </div>
-              <div className={styles.summaryRow}>
-                <span>الحالة</span>
-                <b>{statusLabels[appointment.status]}</b>
-              </div>
-              <div className={styles.summaryRow}>
-                <span>الدفع</span>
-                <b>{paymentLabels[appointment.payment_status]}</b>
-              </div>
-              <div className={styles.summaryRow}>
-                <span>الكشف</span>
-                <b dir="ltr">
-                  {appointment.fee_amount} {appointment.currency}
-                </b>
-              </div>
+            <p className={styles.lookupCount}>
+              {appointments.length === 1
+                ? 'تم العثور على حجز واحد.'
+                : `تم العثور على ${appointments.length} حجوزات.`}
+            </p>
+
+            <div className={styles.lookupList}>
+              {appointments.map((appointment) => (
+                <article key={appointment.booking_reference} className={styles.lookupItem}>
+                  <div className={styles.lookupItemHead}>
+                    <b dir="ltr">{appointment.booking_reference}</b>
+                    <span>{statusLabels[appointment.status]}</span>
+                  </div>
+
+                  <div className={styles.summary}>
+                    <div className={styles.summaryRow}>
+                      <span>المريض</span>
+                      <b>{appointment.patient_name ?? '—'}</b>
+                    </div>
+                    <div className={styles.summaryRow}>
+                      <span>الهاتف</span>
+                      <b dir="ltr">{appointment.patient_phone ?? '—'}</b>
+                    </div>
+                    <div className={styles.summaryRow}>
+                      <span>التخصص</span>
+                      <b>{appointment.service_label}</b>
+                    </div>
+                    <div className={styles.summaryRow}>
+                      <span>اليوم</span>
+                      <b dir="ltr">{appointment.appointment_date}</b>
+                    </div>
+                    <div className={styles.summaryRow}>
+                      <span>الوقت المتوقع للكشف</span>
+                      <b dir="ltr">{appointment.start_time.slice(0, 5)}</b>
+                    </div>
+                    <div className={styles.summaryRow}>
+                      <span>رقم الدور</span>
+                      <b dir="ltr">{appointment.queue_number ?? '—'}</b>
+                    </div>
+                    <div className={styles.summaryRow}>
+                      <span>الانتظار المتوقع</span>
+                      <b>
+                        {appointment.expected_wait_minutes === null
+                          ? '—'
+                          : `${appointment.expected_wait_minutes} دقيقة`}
+                      </b>
+                    </div>
+                    <div className={styles.summaryRow}>
+                      <span>وصول الطبيب</span>
+                      <b dir="ltr">
+                        {appointment.doctor_arrival_time?.slice(0, 5) ?? '—'}
+                      </b>
+                    </div>
+                    <div className={styles.summaryRow}>
+                      <span>الدفع</span>
+                      <b>{paymentLabels[appointment.payment_status]}</b>
+                    </div>
+                    <div className={styles.summaryRow}>
+                      <span>الكشف</span>
+                      <b dir="ltr">
+                        {appointment.fee_amount} {appointment.currency}
+                      </b>
+                    </div>
+                  </div>
+
+                  {appointment.patient_note ? (
+                    <p className={styles.cardNote}>
+                      ملاحظتك: {appointment.patient_note}
+                    </p>
+                  ) : null}
+
+                  {canCancel(appointment) ? (
+                    <div className={styles.actions}>
+                      <button
+                        type="button"
+                        className={styles.ghost}
+                        disabled={busy}
+                        onClick={() => void cancel(appointment.booking_reference)}
+                      >
+                        {busy ? 'جارٍ الإلغاء…' : 'إلغاء الموعد'}
+                      </button>
+                    </div>
+                  ) : null}
+                </article>
+              ))}
             </div>
-
-            {appointment.patient_note ? (
-              <p className={styles.cardNote}>
-                ملاحظتك: {appointment.patient_note}
-              </p>
-            ) : null}
-
-            {canCancel ? (
-              <div className={styles.actions}>
-                <button
-                  type="button"
-                  className={styles.ghost}
-                  disabled={busy}
-                  onClick={() => void cancel()}
-                >
-                  {busy ? 'جارٍ الإلغاء…' : 'إلغاء الموعد'}
-                </button>
-              </div>
-            ) : null}
           </>
         )}
       </aside>

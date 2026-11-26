@@ -474,8 +474,13 @@ export default function BookingForm({ config }: Props) {
                   cell.getFullYear() > visibleMonth.getFullYear() ||
                   (cell.getFullYear() === visibleMonth.getFullYear() &&
                     cell.getMonth() > visibleMonth.getMonth());
+                const isPrevMonth =
+                  cell.getFullYear() < visibleMonth.getFullYear() ||
+                  (cell.getFullYear() === visibleMonth.getFullYear() &&
+                    cell.getMonth() < visibleMonth.getMonth());
+                const adjacentMonth = isNextMonth || isPrevMonth;
                 const disabled =
-                  (outsideMonth && !isNextMonth) ||
+                  (outsideMonth && !adjacentMonth) ||
                   cellIso < today ||
                   !isOpenDay(config, cellIso);
                 const selected = cellIso === date;
@@ -486,12 +491,12 @@ export default function BookingForm({ config }: Props) {
                     type="button"
                     className={`${styles.calendarDay} ${
                       selected ? styles.calendarDayActive : ''
-                    } ${isNextMonth ? styles.calendarDayNext : ''}`}
+                    } ${adjacentMonth ? styles.calendarDayAdjacent : ''}`}
                     disabled={disabled}
                     aria-label={cellIso}
                     aria-pressed={selected}
                     onClick={() => {
-                      if (isNextMonth) {
+                      if (adjacentMonth) {
                         setVisibleMonth(
                           new Date(cell.getFullYear(), cell.getMonth(), 1)
                         );

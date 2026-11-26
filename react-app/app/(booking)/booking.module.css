@@ -245,7 +245,7 @@
   font-weight: 800;
 }
 
-.calendarDayNext {
+.calendarDayAdjacent {
   color: var(--cyan-soft);
   border-color: rgba(45, 167, 196, 0.24);
 }
@@ -356,187 +356,210 @@
   color: var(--cyan-soft);
 }
 
-/* 2 — Rail */
-.sessionGridRail {
+/* 1 — Time only */
+.sessionGridBare {
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.sessionCardBare {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 64px;
+  padding: 12px;
+  text-align: center;
+}
+
+.bareTime {
+  color: var(--text);
+  font-family: var(--font-anton), Impact, sans-serif;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.sessionCardBare .lowBadge {
+  position: absolute;
+  inset-block-start: 6px;
+  inset-inline-end: 6px;
+}
+
+/* Shared low-availability badge; hidden unless two places or fewer remain. */
+.lowBadge {
+  padding: 2px 6px;
+  border: 1px solid rgba(45, 167, 196, 0.38);
+  background: rgba(45, 167, 196, 0.12);
+  color: var(--cyan-soft);
+  font-size: 10px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* 2 — Time with rule */
+.sessionGridRule {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.sessionCardRule {
+  display: grid;
+  gap: 8px;
+  min-height: 66px;
+  padding: 12px 14px;
+}
+
+.ruleTime {
+  color: var(--text);
+  font-family: var(--font-anton), Impact, sans-serif;
+  font-size: 19px;
+  line-height: 1;
+}
+
+.ruleLine {
+  display: block;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(45, 167, 196, 0.55),
+    rgba(45, 167, 196, 0.05)
+  );
+}
+
+.sessionCardRule.sessionCardActive .ruleLine {
+  background: var(--cyan);
+}
+
+/* 3 — Stacked index */
+.sessionGridStack {
   display: grid;
   grid-template-columns: 1fr;
   gap: 8px;
 }
 
-.sessionCardRail {
+.sessionCardStack {
   display: grid;
-  grid-template-columns: 32px 1fr;
+  grid-template-columns: 28px 1fr auto;
   align-items: center;
   gap: 12px;
-  min-height: 0;
+  min-height: 56px;
   padding: 10px 12px;
 }
 
-.railNode {
+.stackIndex {
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border: 1px solid rgba(45, 167, 196, 0.38);
-  border-radius: 50%;
   color: var(--cyan-soft);
   font-family: var(--font-anton), Impact, sans-serif;
-  font-size: 12px;
+  font-size: 11px;
 }
 
-.sessionCardRail.sessionCardActive .railNode {
+.stackTime {
+  color: var(--text);
+  font-family: var(--font-anton), Impact, sans-serif;
+  font-size: 17px;
+  line-height: 1;
+}
+
+.sessionCardStack.sessionCardActive .stackIndex {
   border-color: var(--cyan);
   background: var(--cyan);
   color: #04171d;
 }
 
-.railBody {
-  display: grid;
-  gap: 2px;
-}
-
-/* 3 — Tiles */
-.sessionGridTile {
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 10px;
-}
-
-.sessionCardTile {
-  gap: 6px;
-  min-height: 104px;
-  padding: 14px;
-  border-top: 2px solid var(--tile-accent, var(--cyan));
-}
-
-.sessionCardTile[data-index='0'] {
-  --tile-accent: #9ad9e5;
-}
-
-.sessionCardTile[data-index='1'] {
-  --tile-accent: #77cde0;
-}
-
-.sessionCardTile[data-index='2'] {
-  --tile-accent: #55bfd7;
-}
-
-.sessionCardTile[data-index='3'] {
-  --tile-accent: #2da7c4;
-}
-
-.sessionCardTile[data-index='4'] {
-  --tile-accent: #7ba9d8;
-}
-
-.tileIndex {
-  color: var(--tile-accent, var(--cyan-soft));
-  font-size: 10px;
-  letter-spacing: 0.12em;
-}
-
-.tileTime {
-  color: var(--text);
-  font-family: var(--font-anton), Impact, sans-serif;
-  font-size: 22px;
-  line-height: 1.1;
-}
-
-.sessionCardActive .tileTime {
-  color: var(--cyan-soft);
-}
-
-/* 4 — Pills */
-.sessionGridPill {
+/* 4 — Inline number */
+.sessionGridInline {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.sessionCardPill {
+.sessionCardInline {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 42px;
-  padding: 8px 14px;
-  border-radius: 999px;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 12px;
 }
 
-.pillTime {
+.inlineNumber,
+.barNumber {
+  color: var(--dim);
+  font-family: var(--font-anton), Impact, sans-serif;
+  font-size: 11px;
+}
+
+.inlineTime {
   color: var(--text);
   font-family: var(--font-anton), Impact, sans-serif;
   font-size: 16px;
-  letter-spacing: 0.02em;
+  line-height: 1;
 }
 
-.pillMeta {
-  color: var(--muted);
-  font-size: 11px;
-}
-
-.pillRemaining {
+.sessionCardInline .lowBadge {
   margin-inline-start: auto;
-  color: var(--cyan-soft);
-  font-size: 11px;
 }
 
-.sessionCardPill.sessionCardActive {
-  border-color: var(--cyan);
-  background: var(--cyan);
-}
-
-.sessionCardPill.sessionCardActive .pillTime,
-.sessionCardPill.sessionCardActive .pillMeta,
-.sessionCardPill.sessionCardActive .pillRemaining {
-  color: #04171d;
-}
-
-/* 5 — Split */
-.sessionGridSplit {
+/* 5 — Progress bars */
+.sessionGridBars {
   display: grid;
   grid-template-columns: 1fr;
   gap: 8px;
 }
 
-.sessionCardSplit {
-  grid-template-columns: minmax(118px, 0.9fr) minmax(0, 1fr);
-  gap: 0;
-  min-height: 64px;
-  padding: 0;
-  overflow: hidden;
-}
-
-.splitTime {
+.sessionCardBars {
   display: grid;
-  align-content: center;
-  gap: 2px;
-  padding: 10px 14px;
-  border-inline-end: 1px solid var(--line);
-  background: rgba(45, 167, 196, 0.06);
+  grid-template-columns: 32px 1fr auto;
+  grid-template-rows: auto 3px;
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 6px;
+  min-height: 0;
+  padding: 10px 12px;
 }
 
-.splitTime b {
+.barNumber {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.barTime {
+  grid-column: 2;
+  grid-row: 1;
   color: var(--text);
   font-family: var(--font-anton), Impact, sans-serif;
-  font-size: 18px;
-  line-height: 1.1;
+  font-size: 17px;
+  line-height: 1;
 }
 
-.splitTime span {
-  color: var(--dim);
-  font-size: 10px;
+.sessionCardBars .lowBadge {
+  grid-column: 3;
+  grid-row: 1;
 }
 
-.splitMeta {
-  display: grid;
-  align-content: center;
-  gap: 2px;
-  padding: 10px 14px;
-  color: var(--muted);
-  font-size: 11px;
+.barFill {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    rgba(45, 167, 196, 0.5),
+    rgba(45, 167, 196, 0.08)
+  );
 }
 
-.sessionCardSplit.sessionCardActive .splitTime {
-  background: rgba(45, 167, 196, 0.16);
+.sessionCardBars.sessionCardActive .barFill {
+  background: var(--cyan);
+}
+
+.sessionCardActive .bareTime,
+.sessionCardActive .ruleTime,
+.sessionCardActive .stackTime,
+.sessionCardActive .inlineTime,
+.sessionCardActive .barTime {
+  color: var(--cyan-soft);
 }
 
 .confirmationCard {
@@ -693,6 +716,48 @@
   padding-block: 16px;
   border-color: rgba(45, 167, 196, 0.46);
   font-size: 16px;
+}
+
+.lookupCount {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.lookupList {
+  display: grid;
+  gap: 16px;
+}
+
+.lookupItem {
+  padding: 16px;
+  border: 1px solid var(--line);
+  background: #07090a;
+}
+
+.lookupItemHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.lookupItemHead b {
+  color: var(--cyan-soft);
+  font-family: var(--font-anton), Impact, sans-serif;
+  font-size: 14px;
+}
+
+.lookupItemHead span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.lookupItem .summary {
+  gap: 10px;
 }
 
 .summary {

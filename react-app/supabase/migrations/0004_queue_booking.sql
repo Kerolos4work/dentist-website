@@ -302,9 +302,9 @@ begin
 end;
 $$;
 
--- Guests read their own latest booking by phone; the reference is an
--- optional exact filter. The return type changed, so replace the old
--- signature explicitly.
+-- Guests read all their bookings by phone; the reference is an optional
+-- exact filter. The return type changed, so replace the old signature
+-- explicitly.
 drop function if exists public.guest_lookup_appointment(text, text);
 
 create or replace function public.guest_lookup_appointment(
@@ -386,7 +386,7 @@ begin
       )
     )
   order by a.created_at desc
-  limit 1;
+  limit 20;
 end;
 $$;
 

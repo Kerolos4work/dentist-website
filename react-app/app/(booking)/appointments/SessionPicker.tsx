@@ -22,15 +22,22 @@ function sessionRange(session: AvailableSession): string {
   return `${shortTime(session.session_start)} – ${shortTime(session.session_end)}`;
 }
 
+function availability(session: AvailableSession): string {
+  if (session.remaining <= 0) return 'اكتملت';
+  if (session.remaining <= 2) return `متبقٍ ${session.remaining}`;
+  return '';
+}
+
 export default function SessionPicker({ sessions, value, onChange }: Props) {
   const [design, setDesign] = useState<Design>(1);
 
   const gridClass = [
     styles.sessionGrid,
-    design === 2 ? styles.sessionGridRail : '',
-    design === 3 ? styles.sessionGridTile : '',
-    design === 4 ? styles.sessionGridPill : '',
-    design === 5 ? styles.sessionGridSplit : '',
+    design === 1 ? styles.sessionGridBare : '',
+    design === 2 ? styles.sessionGridRule : '',
+    design === 3 ? styles.sessionGridStack : '',
+    design === 4 ? styles.sessionGridInline : '',
+    design === 5 ? styles.sessionGridBars : '',
   ]
     .filter(Boolean)
     .join(' ');
@@ -61,14 +68,14 @@ export default function SessionPicker({ sessions, value, onChange }: Props) {
         {sessions.map((session, index) => {
           const active = session.session_start === value;
           const full = session.remaining <= 0;
-          const arrival = shortTime(session.doctor_arrival_time);
-          const remaining = full ? 'اكتملت' : `متبقٍ ${session.remaining}`;
+          const low = availability(session);
           const cardClass = [
             styles.sessionCard,
-            design === 2 ? styles.sessionCardRail : '',
-            design === 3 ? styles.sessionCardTile : '',
-            design === 4 ? styles.sessionCardPill : '',
-            design === 5 ? styles.sessionCardSplit : '',
+            design === 1 ? styles.sessionCardBare : '',
+            design === 2 ? styles.sessionCardRule : '',
+            design === 3 ? styles.sessionCardStack : '',
+            design === 4 ? styles.sessionCardInline : '',
+            design === 5 ? styles.sessionCardBars : '',
             active ? styles.sessionCardActive : '',
           ]
             .filter(Boolean)
@@ -79,67 +86,63 @@ export default function SessionPicker({ sessions, value, onChange }: Props) {
               key={session.session_start}
               type="button"
               className={cardClass}
-              data-index={index}
               disabled={full}
               aria-pressed={active}
               onClick={() => onChange(session.session_start)}
             >
               {design === 1 ? (
                 <>
-                  <span className={styles.sessionTime} dir="ltr">
+                  <span className={styles.bareTime} dir="ltr">
                     {sessionRange(session)}
                   </span>
-                  <span className={styles.sessionMeta}>وصول الطبيب {arrival}</span>
-                  <span className={styles.sessionRemaining}>{remaining}</span>
+                  {low ? <span className={styles.lowBadge}>{low}</span> : null}
                 </>
               ) : null}
 
               {design === 2 ? (
                 <>
-                  <span className={styles.railNode} aria-hidden="true">
-                    {String(index + 1).padStart(2, '0')}
+                  <span className={styles.ruleTime} dir="ltr">
+                    {sessionRange(session)}
                   </span>
-                  <span className={styles.railBody}>
-                    <span className={styles.sessionTime} dir="ltr">
-                      {sessionRange(session)}
-                    </span>
-                    <span className={styles.sessionMeta}>وصول الطبيب {arrival}</span>
-                    <span className={styles.sessionRemaining}>{remaining}</span>
-                  </span>
+                  <span className={styles.ruleLine} aria-hidden="true" />
+                  {low ? <span className={styles.lowBadge}>{low}</span> : null}
                 </>
               ) : null}
 
               {design === 3 ? (
                 <>
-                  <span className={styles.tileIndex}>جلسة {index + 1}</span>
-                  <span className={styles.tileTime} dir="ltr">
+                  <span className={styles.stackIndex} aria-hidden="true">
+                    {index + 1}
+                  </span>
+                  <span className={styles.stackTime} dir="ltr">
                     {sessionRange(session)}
                   </span>
-                  <span className={styles.sessionMeta}>وصول الطبيب {arrival}</span>
-                  <span className={styles.sessionRemaining}>{remaining}</span>
+                  {low ? <span className={styles.lowBadge}>{low}</span> : null}
                 </>
               ) : null}
 
               {design === 4 ? (
                 <>
-                  <span className={styles.pillTime} dir="ltr">
+                  <span className={styles.inlineNumber} aria-hidden="true">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <span className={styles.inlineTime} dir="ltr">
                     {sessionRange(session)}
                   </span>
-                  <span className={styles.pillMeta}>وصول {arrival}</span>
-                  <span className={styles.pillRemaining}>{remaining}</span>
+                  {low ? <span className={styles.lowBadge}>{low}</span> : null}
                 </>
               ) : null}
 
               {design === 5 ? (
                 <>
-                  <span className={styles.splitTime}>
-                    <b dir="ltr">{sessionRange(session)}</b>
-                    <span>جلسة {index + 1}</span>
+                  <span className={styles.barNumber} aria-hidden="true">
+                    {String(index + 1).padStart(2, '0')}
                   </span>
-                  <span className={styles.splitMeta}>
-                    <span>وصول الطبيب {arrival}</span>
-                    <span className={styles.sessionRemaining}>{remaining}</span>
+                  <span className={styles.barTime} dir="ltr">
+                    {sessionRange(session)}
                   </span>
+                  {low ? <span className={styles.lowBadge}>{low}</span> : null}
+                  <span className={styles.barFill} aria-hidden="true" />
                 </>
               ) : null}
             </button>
