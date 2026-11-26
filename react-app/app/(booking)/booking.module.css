@@ -305,8 +305,8 @@
   align-content: center;
   justify-items: center;
   gap: 8px;
-  min-height: 82px;
-  padding: 16px 12px 14px;
+  min-height: 104px;
+  padding: 12px;
   overflow: hidden;
   background: linear-gradient(180deg, #0c1114 0%, #07090a 100%);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
@@ -346,6 +346,9 @@
 }
 
 .bareTime {
+  display: grid;
+  justify-items: center;
+  gap: 1px;
   color: var(--text);
   font-family: var(--font-cairo), Cairo, sans-serif;
   font-size: 21px;
@@ -355,8 +358,32 @@
   line-height: 1.2;
 }
 
-.sessionCardActive .bareTime {
+.bareTimePart {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.timeMeridiem {
+  margin-inline-start: 2px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.bareTimeArrow {
+  color: var(--cyan);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.sessionCardActive .bareTime,
+.sessionCardActive .timeMeridiem {
   color: var(--cyan-soft);
+}
+
+.sessionCardActive .bareTimeArrow {
+  color: var(--cyan);
 }
 
 /* Plain text, shown only when two or fewer places remain. */
