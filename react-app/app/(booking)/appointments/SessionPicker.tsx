@@ -27,7 +27,7 @@ function availability(session: AvailableSession): string {
 export default function SessionPicker({ sessions, value, onChange }: Props) {
   return (
     <div className={`${styles.sessionGrid} ${styles.sessionGridBare}`}>
-      {sessions.map((session, index) => {
+      {sessions.map((session) => {
         const start = clockPart(session.session_start);
         const end = clockPart(session.session_end);
         const active = session.session_start === value;
@@ -45,16 +45,14 @@ export default function SessionPicker({ sessions, value, onChange }: Props) {
             aria-pressed={active}
             onClick={() => onChange(session.session_start)}
           >
-            <span className={styles.sessionNumber} aria-hidden="true">
-              {String(index + 1).padStart(2, '0')}
-            </span>
-
             <span className={styles.bareTime} dir="ltr">
               <span className={styles.bareTimePart}>
                 {start.time}
                 <small className={styles.timeMeridiem}>{start.meridiem}</small>
               </span>
-              <span className={styles.bareTimeArrow} aria-hidden="true" />
+              <span className={styles.bareTimeArrow} aria-hidden="true">
+                ↓
+              </span>
               <span className={styles.bareTimePart}>
                 {end.time}
                 <small className={styles.timeMeridiem}>{end.meridiem}</small>

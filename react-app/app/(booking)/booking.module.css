@@ -295,7 +295,7 @@
 
 /* Single session-card design: time first, with optional availability text. */
 .sessionGridBare {
-  grid-template-columns: repeat(auto-fit, minmax(164px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
   gap: 10px;
 }
 
@@ -306,8 +306,7 @@
   justify-items: center;
   gap: 8px;
   min-height: 104px;
-  padding-block: 12px;
-  padding-inline: 12px 44px;
+  padding: 12px;
   overflow: hidden;
   background: linear-gradient(180deg, #0c1114 0%, #07090a 100%);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
@@ -318,7 +317,7 @@
   content: '';
   position: absolute;
   inset-block-end: 0;
-  inset-inline: 14px 44px;
+  inset-inline: 14px;
   height: 2px;
   background: linear-gradient(
     90deg,
@@ -373,27 +372,9 @@
 }
 
 .bareTimeArrow {
-  position: relative;
-  width: 1px;
-  height: 16px;
-  margin-block: 2px;
-  background: linear-gradient(
-    180deg,
-    rgba(45, 167, 196, 0.35),
-    var(--cyan)
-  );
-}
-
-.bareTimeArrow::after {
-  content: '';
-  position: absolute;
-  inset-block-end: -1px;
-  inset-inline-start: -4px;
-  width: 9px;
-  height: 9px;
-  border-inline-end: 1px solid var(--cyan);
-  border-block-end: 1px solid var(--cyan);
-  transform: rotate(45deg);
+  color: var(--cyan);
+  font-size: 12px;
+  line-height: 1;
 }
 
 .sessionCardActive .bareTime,
@@ -401,28 +382,8 @@
   color: var(--cyan-soft);
 }
 
-/* Numbered ribbon on the left edge of each session card. */
-.sessionNumber {
-  position: absolute;
-  inset-block: 0;
-  inset-inline-end: 0;
-  display: grid;
-  place-items: center;
-  width: 36px;
-  background: linear-gradient(
-    180deg,
-    rgba(45, 167, 196, 0.9),
-    rgba(45, 167, 196, 0.52)
-  );
-  color: #04171d;
-  font-family: var(--font-anton), Impact, sans-serif;
-  font-size: 13px;
-  letter-spacing: 0.04em;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 calc(100% - 9px));
-}
-
-.sessionCardBare.sessionCardActive .sessionNumber {
-  background: var(--cyan);
+.sessionCardActive .bareTimeArrow {
+  color: var(--cyan);
 }
 
 /* Plain text, shown only when two or fewer places remain. */
