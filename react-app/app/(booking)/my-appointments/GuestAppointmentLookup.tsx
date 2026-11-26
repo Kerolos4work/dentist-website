@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import Link from 'next/link';
 import { getBrowserClient } from '@/lib/supabase/client';
 import { paymentLabels, statusLabels } from '@/lib/appointments/labels';
@@ -24,7 +24,19 @@ export default function GuestAppointmentLookup() {
   const [phone, setPhone] = useState('');
   const [appointments, setAppointments] = useState<GuestAppointment[]>([]);
   const [status, setStatus] = useState('');
+  const [errorField, setErrorField] = useState('');
   const [busy, setBusy] = useState(false);
+
+  const showError = useCallback((message: string, field = 'lookup-error') => {
+    setStatus(message);
+    setErrorField(field);
+    setTimeout(() => {
+      const target = document.getElementById(field);
+      if (!target) return;
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      target.focus({ preventScroll: true });
+    });
+  }, []);
 
   async function lookup() {
     const supabase = getBrowserClient();
@@ -32,6 +44,7 @@ export default function GuestAppointmentLookup() {
 
     setBusy(true);
     setStatus('');
+    setErrorField('');
     setAppointments([]);
 
     const { data, error } = await supabase.rpc('guest_lookup_appointment', {
@@ -40,17 +53,18 @@ export default function GuestAppointmentLookup() {
     });
 
     if (error) {
-      setStatus(readableError(error));
+      showError(readableError(error), 'lookup-phone');
       setBusy(false);
       return;
     }
 
     const rows = (data ?? []) as GuestAppointment[];
     if (!rows.length) {
-      setStatus(
+      showError(
         reference.trim()
           ? 'لم نعثر على حجز بهذا الرقم ورقم الهاتف.'
-          : 'لم نعثر على حجوز بهذا الهاتف.'
+          : 'لم نعثر على حجوز بهذا الهاتف.',
+        reference.trim() ? 'reference' : 'lookup-phone'
       );
     } else {
       setAppointments(rows);
@@ -64,13 +78,14 @@ export default function GuestAppointmentLookup() {
 
     setBusy(true);
     setStatus('');
+    setErrorField('');
     const { error } = await supabase.rpc('guest_cancel_appointment', {
       p_reference: targetReference,
       p_phone: phone.trim(),
     });
 
     if (error) {
-      setStatus(readableError(error));
+      showError(readableError(error));
     } else {
       setAppointments((current) =>
         current.map((appointment) =>
@@ -80,6 +95,7 @@ export default function GuestAppointmentLookup() {
         )
       );
       setStatus('تم إلغاء الموعد.');
+      setErrorField('');
     }
     setBusy(false);
   }
@@ -92,9 +108,23 @@ export default function GuestAppointmentLookup() {
           ابحث برقم الهاتف المستخدم في الحجز. رقم الحجز اختياري إذا أردت تحديد موعد بعينه.
         </p>
 
-        {status ? <p className={`${styles.message} ${styles.error}`}>{status}</p> : null}
+        {status ? (
+          <p
+            id="lookup-error"
+            tabIndex={-1}
+            className={`${styles.message} ${styles.error} ${
+              errorField ? styles.messageGlow : ''
+            }`}
+          >
+            {status}
+          </p>
+        ) : null}
 
-        <div className={`${styles.field} ${styles.lookupPrimaryField}`}>
+        <div
+          className={`${styles.field} ${styles.lookupPrimaryField} ${
+            errorField === 'lookup-phone' ? styles.fieldGlow : ''
+          }`}
+        >
           <label className={styles.label} htmlFor="lookup-phone">
             رقم الهاتف
           </label>
@@ -106,12 +136,19 @@ export default function GuestAppointmentLookup() {
             required
             className={`${styles.input} ${styles.lookupInput}`}
             value={phone}
-            onChange={(event) => setPhone(event.target.value)}
+            onChange={(event) => {
+              setPhone(event.target.value);
+              setErrorField('');
+            }}
             placeholder="+20 12 85827427"
           />
         </div>
 
-        <div className={styles.field}>
+        <div
+          className={`${styles.field} ${
+            errorField === 'reference' ? styles.fieldGlow : ''
+          }`}
+        >
           <label className={styles.label} htmlFor="reference">
             رقم الحجز (اختياري)
           </label>
@@ -121,7 +158,10 @@ export default function GuestAppointmentLookup() {
             dir="ltr"
             className={styles.input}
             value={reference}
-            onChange={(event) => setReference(event.target.value)}
+            onChange={(event) => {
+              setReference(event.target.value);
+              setErrorField('');
+            }}
             placeholder="AY-123456"
           />
         </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { getBrowserClient } from '@/lib/supabase/client';
 import { generalCheckupService, appointmentServices } from '@/lib/appointments/services';
@@ -99,6 +99,7 @@ export default function BookingForm({ config }: Props) {
   const [note, setNote] = useState('');
   const [provider, setProvider] = useState<PaymentProvider | null>(null);
   const [status, setStatus] = useState('');
+  const [errorField, setErrorField] = useState('');
   const [busy, setBusy] = useState(false);
   const [sessions, setSessions] = useState<AvailableSession[]>([]);
   const [sessionsLoading, setSessionsLoading] = useState(true);
@@ -107,6 +108,17 @@ export default function BookingForm({ config }: Props) {
     const today = new Date(`${todayIso()}T12:00:00`);
     return new Date(today.getFullYear(), today.getMonth(), 1);
   });
+
+  const showError = useCallback((message: string, field = 'booking-error') => {
+    setStatus(message);
+    setErrorField(field);
+    setTimeout(() => {
+      const target = document.getElementById(field);
+      if (!target) return;
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      target.focus({ preventScroll: true });
+    });
+  }, []);
 
   // Sessions come from the database so the same quotas, closures and doctor
   // schedule shown here are the ones enforced when the booking is inserted.
@@ -129,7 +141,7 @@ export default function BookingForm({ config }: Props) {
         if (!active) return;
         if (error) {
           setSessions([]);
-          setStatus('تعذّر تحميل جلسات الطبيب. حاول لاحقًا.');
+          showError('تعذّر تحميل جلسات الطبيب. حاول لاحقًا.');
         } else {
           setSessions((data ?? []) as AvailableSession[]);
         }
@@ -139,7 +151,7 @@ export default function BookingForm({ config }: Props) {
     return () => {
       active = false;
     };
-  }, [date]);
+  }, [date, showError]);
 
   const needsPayment = config?.approval_mode === 'auto_after_payment';
   const availableProviders = [
@@ -194,23 +206,23 @@ export default function BookingForm({ config }: Props) {
     if (confirmation) return;
 
     if (fullName.trim().length < 2) {
-      setStatus('اكتب اسمك كاملًا.');
+      showError('اكتب اسمك كاملًا.', 'fullName');
       return;
     }
     if (!phone.trim()) {
-      setStatus('اكتب رقم الهاتف.');
+      showError('اكتب رقم الهاتف.', 'phone');
       return;
     }
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setStatus('البريد الإلكتروني غير صالح.');
+      showError('البريد الإلكتروني غير صالح.', 'email');
       return;
     }
     if (!selectedSession) {
-      setStatus('اختر جلسة الطبيب من القائمة.');
+      showError('اختر جلسة الطبيب من القائمة.', 'session-field');
       return;
     }
     if (needsPayment && !provider) {
-      setStatus('اختر وسيلة الدفع.');
+      showError('اختر وسيلة الدفع.', 'provider-field');
       return;
     }
 
@@ -219,6 +231,7 @@ export default function BookingForm({ config }: Props) {
 
     setBusy(true);
     setStatus('');
+    setErrorField('');
     const { data, error } = await supabase.functions.invoke('create-booking', {
       body: {
         fullName: fullName.trim(),
@@ -233,14 +246,14 @@ export default function BookingForm({ config }: Props) {
     });
 
     if (error) {
-      setStatus(await functionErrorMessage(error));
+      showError(await functionErrorMessage(error));
       setBusy(false);
       return;
     }
 
     const booked = data as BookingResponse;
     if (booked.error) {
-      setStatus(booked.error);
+      showError(booked.error);
       setBusy(false);
       return;
     }
@@ -340,9 +353,23 @@ export default function BookingForm({ config }: Props) {
           لا تحتاج إلى حساب. نستخدم الاسم ورقم الهاتف لمتابعة حجزك وإلغائه.
         </p>
 
-        {status ? <p className={`${styles.message} ${styles.error}`}>{status}</p> : null}
+        {status ? (
+          <p
+            id="booking-error"
+            tabIndex={-1}
+            className={`${styles.message} ${styles.error} ${
+              errorField ? styles.messageGlow : ''
+            }`}
+          >
+            {status}
+          </p>
+        ) : null}
 
-        <div className={styles.field}>
+        <div
+          className={`${styles.field} ${
+            errorField === 'fullName' ? styles.fieldGlow : ''
+          }`}
+        >
           <label className={styles.label} htmlFor="fullName">
             الاسم
           </label>
@@ -355,12 +382,19 @@ export default function BookingForm({ config }: Props) {
             maxLength={80}
             className={styles.input}
             value={fullName}
-            onChange={(event) => setFullName(event.target.value)}
+            onChange={(event) => {
+              setFullName(event.target.value);
+              setErrorField('');
+            }}
             placeholder="الاسم كما يظهر في جواز السفر أو الهوية"
           />
         </div>
 
-        <div className={styles.field}>
+        <div
+          className={`${styles.field} ${
+            errorField === 'phone' ? styles.fieldGlow : ''
+          }`}
+        >
           <label className={styles.label} htmlFor="phone">
             رقم الهاتف
           </label>
@@ -373,12 +407,19 @@ export default function BookingForm({ config }: Props) {
             required
             className={styles.input}
             value={phone}
-            onChange={(event) => setPhone(event.target.value)}
+            onChange={(event) => {
+              setPhone(event.target.value);
+              setErrorField('');
+            }}
             placeholder="+20 12 85827427"
           />
         </div>
 
-        <div className={styles.field}>
+        <div
+          className={`${styles.field} ${
+            errorField === 'email' ? styles.fieldGlow : ''
+          }`}
+        >
           <label className={styles.label} htmlFor="email">
             البريد الإلكتروني (اختياري)
           </label>
@@ -389,7 +430,10 @@ export default function BookingForm({ config }: Props) {
             autoComplete="email"
             className={styles.input}
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={(event) => {
+              setEmail(event.target.value);
+              setErrorField('');
+            }}
             placeholder="name@example.com"
           />
         </div>
@@ -515,13 +559,22 @@ export default function BookingForm({ config }: Props) {
           </div>
         </div>
 
-        <div className={styles.field}>
+        <div
+          id="session-field"
+          tabIndex={-1}
+          className={`${styles.field} ${
+            errorField === 'session-field' ? styles.fieldGlow : ''
+          }`}
+        >
           <span className={styles.label}>جلسة الطبيب</span>
           {visibleSessions.length ? (
             <SessionPicker
               sessions={visibleSessions}
               value={sessionStart}
-              onChange={setSessionStart}
+              onChange={(start) => {
+                setSessionStart(start);
+                setErrorField('');
+              }}
             />
           ) : (
             <p className={styles.message}>
@@ -609,7 +662,13 @@ export default function BookingForm({ config }: Props) {
           </div>
 
           {needsPayment ? (
-            <div className={styles.field}>
+            <div
+              id="provider-field"
+              tabIndex={-1}
+              className={`${styles.field} ${
+                errorField === 'provider-field' ? styles.fieldGlow : ''
+              }`}
+            >
               <span className={styles.label}>وسيلة الدفع</span>
               <div className={styles.providerRow}>
                 <button
@@ -618,7 +677,10 @@ export default function BookingForm({ config }: Props) {
                     provider === 'paymob' ? styles.providerActive : ''
                   }`}
                   disabled={!config.paymob_enabled}
-                  onClick={() => setProvider('paymob')}
+                  onClick={() => {
+                    setProvider('paymob');
+                    setErrorField('');
+                  }}
                 >
                   Paymob
                 </button>
@@ -628,7 +690,10 @@ export default function BookingForm({ config }: Props) {
                     provider === 'fawry' ? styles.providerActive : ''
                   }`}
                   disabled={!config.fawry_enabled}
-                  onClick={() => setProvider('fawry')}
+                  onClick={() => {
+                    setProvider('fawry');
+                    setErrorField('');
+                  }}
                 >
                   Fawry
                 </button>

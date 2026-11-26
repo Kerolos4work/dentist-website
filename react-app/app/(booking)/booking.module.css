@@ -559,6 +559,24 @@
   background: rgba(196, 37, 54, 0.1);
 }
 
+.fieldGlow,
+.messageGlow {
+  scroll-margin-top: 100px;
+  outline: 1px solid rgba(196, 37, 54, 0.5);
+  outline-offset: 4px;
+  animation: errorGlow 1.2s ease-in-out 2;
+}
+
+@keyframes errorGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(196, 37, 54, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(196, 37, 54, 0.2);
+  }
+}
+
 .lookupPrimaryField {
   margin-bottom: 24px;
 }
