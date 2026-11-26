@@ -1,7 +1,7 @@
 import { getServerClient } from '@/lib/supabase/server';
 import type {
   Appointment,
-  AvailableSlot,
+  AvailableSession,
   BookingConfig,
   ClosedDate,
   DoctorSession,
@@ -58,7 +58,7 @@ export async function getBookingConfig(): Promise<BookingConfig | null> {
 }
 
 const appointmentColumns =
-  'id, patient_id, patient_name, patient_phone, patient_email, booking_reference, service_id, service_label, fee_amount, currency, appointment_date, start_time, end_time, status, payment_provider, payment_status, payment_reference, patient_note, nurse_note, reviewed_by, reviewed_at, checked_in_at, created_at';
+  'id, patient_id, patient_name, patient_phone, patient_email, booking_reference, service_id, service_label, fee_amount, currency, appointment_date, start_time, end_time, queue_number, expected_wait_minutes, doctor_arrival_time, status, payment_provider, payment_status, payment_reference, patient_note, nurse_note, reviewed_by, reviewed_at, checked_in_at, created_at';
 
 export async function getPatientAppointments(
   patientId: string
@@ -156,13 +156,15 @@ export async function getClosedDates(): Promise<string[]> {
   );
 }
 
-export async function getAvailableSlots(date: string): Promise<AvailableSlot[]> {
+export async function getAvailableSessions(
+  date: string
+): Promise<AvailableSession[]> {
   const supabase = await getServerClient();
   if (!supabase) return [];
 
-  const { data } = await supabase.rpc('booking_available_slots', {
+  const { data } = await supabase.rpc('booking_available_sessions', {
     p_date: date,
   });
 
-  return (data as AvailableSlot[] | null) ?? [];
+  return (data as AvailableSession[] | null) ?? [];
 }

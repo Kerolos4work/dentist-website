@@ -8,6 +8,12 @@ export function serviceSlug(title: string) {
     .replace(/^-|-$/g, '');
 }
 
+export const generalCheckupService = {
+  id: 'general-checkup',
+  label: 'كشف عام',
+  labelEn: 'General check-up',
+};
+
 export const appointmentServices = site.services.map((service) => ({
   id: serviceSlug(service.title),
   label: service.titleAr,

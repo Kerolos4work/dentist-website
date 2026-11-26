@@ -163,8 +163,26 @@ export default function GuestAppointmentLookup() {
                 <b dir="ltr">{appointment.appointment_date}</b>
               </div>
               <div className={styles.summaryRow}>
-                <span>الوقت</span>
-                <b dir="ltr">{appointment.start_time}</b>
+                <span>الوقت المتوقع للكشف</span>
+                <b dir="ltr">{appointment.start_time.slice(0, 5)}</b>
+              </div>
+              <div className={styles.summaryRow}>
+                <span>رقم الدور</span>
+                <b dir="ltr">{appointment.queue_number ?? '—'}</b>
+              </div>
+              <div className={styles.summaryRow}>
+                <span>الانتظار المتوقع</span>
+                <b>
+                  {appointment.expected_wait_minutes === null
+                    ? '—'
+                    : `${appointment.expected_wait_minutes} دقيقة`}
+                </b>
+              </div>
+              <div className={styles.summaryRow}>
+                <span>وصول الطبيب</span>
+                <b dir="ltr">
+                  {appointment.doctor_arrival_time?.slice(0, 5) ?? '—'}
+                </b>
               </div>
               <div className={styles.summaryRow}>
                 <span>الحالة</span>

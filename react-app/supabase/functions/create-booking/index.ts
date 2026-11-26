@@ -13,6 +13,7 @@ const cors = {
 };
 
 const serviceIds = new Set([
+  'general-checkup',
   'full-arch',
   'veneers-and-smile-design',
   'implants',
@@ -45,7 +46,10 @@ function json(body: unknown, status = 200) {
 
 function bookingError(message: string) {
   if (message.includes('Session is full')) {
-    return 'الجلسة مكتملة. اختر وقتًا آخر.';
+    return 'الجلسة مكتملة. اختر جلسة أخرى.';
+  }
+  if (message.includes('Session is not available')) {
+    return 'هذا اليوم أو هذه الجلسة غير متاحين للحجز.';
   }
   if (message.includes('Slot is taken')) {
     return 'تم حجز هذا الوقت للتو. اختر وقتًا آخر.';
@@ -270,7 +274,8 @@ Deno.serve(async (req) => {
   const fullName = cleanText(body.fullName, 80);
   const phone = normalizePhone(body.phone);
   const email = cleanText(body.email, 320).toLowerCase();
-  const serviceId = cleanText(body.serviceId, 64);
+  // The specialty is optional in the UI; an empty choice is a general check-up.
+  const serviceId = cleanText(body.serviceId, 64) || 'general-checkup';
   const date = cleanText(body.date, 10);
   const time = cleanText(body.time, 5);
   const note = cleanText(body.note, 500);
@@ -316,9 +321,9 @@ Deno.serve(async (req) => {
   }
 
   const merchantRef = crypto.randomUUID();
-  // The RPC locks the date, checks the effective session quota and slot, and
-  // inserts the appointment in one transaction. No client-side schedule logic
-  // can bypass it.
+  // The RPC locks the date, verifies the chosen session, assigns the first free
+  // queue place and inserts in one transaction. p_time is the session start,
+  // never a patient-picked exact slot.
   const { data: appointment, error: bookingErrorResponse } = await admin.rpc(
     'create_guest_appointment',
     {
@@ -339,6 +344,7 @@ Deno.serve(async (req) => {
     const detail = bookingErrorResponse?.message ?? 'Booking failed.';
     const conflict =
       detail.includes('Session is full') ||
+      detail.includes('Session is not available') ||
       detail.includes('Slot is taken') ||
       detail.includes('Time is outside working hours') ||
       detail.includes('You already have an appointment on this day');
@@ -351,6 +357,9 @@ Deno.serve(async (req) => {
     bookingReference: booked.out_booking_reference,
     status: booked.out_status,
     paymentStatus: booked.out_payment_status,
+    queueNumber: booked.out_queue_number,
+    expectedWaitMinutes: booked.out_expected_wait_minutes,
+    doctorArrivalTime: booked.out_doctor_arrival_time,
   };
 
   if (!needsPayment) {

@@ -17,7 +17,7 @@ export default async function AppointmentsPage() {
         <p className={styles.kicker}>APPOINTMENT / REQUEST</p>
         <h1 className={styles.title}>احجز موعدك</h1>
         <p className={styles.lead}>
-          اكتب اسمك ورقم هاتفك، واختر التخصص والوقت المتاح. ستحصل على رقم حجز تتابع به موعدك من صفحة «مواعيدي». الكشف 300 جنيه.
+          اكتب اسمك ورقم هاتفك، واختر اليوم وجلسة الطبيب المناسبة من التقويم. لا تختار وقتًا محددًا؛ سيمنحك النظام رقم دور ووقت انتظار متوقع ووقت وصول الطبيب. الكشف 300 جنيه.
         </p>
       </header>
 

@@ -164,29 +164,157 @@
   resize: vertical;
 }
 
-.slotGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
-  gap: 8px;
+.calendar {
+  padding: 14px;
+  border: 1px solid var(--line);
+  background: #07090a;
 }
 
-.slot {
-  padding: 10px 6px;
+.calendarHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.calendarNav {
+  width: 32px;
+  height: 32px;
+  flex: none;
   border: 1px solid var(--line);
   background: transparent;
-  color: var(--muted);
+  color: var(--text);
   font: inherit;
-  font-size: 13px;
+  font-size: 20px;
   cursor: pointer;
-  transition:
-    border-color 0.2s ease,
-    color 0.2s ease;
 }
 
-.slot:hover,
-.slotActive {
+.calendarNav:hover:not(:disabled) {
   border-color: var(--cyan-soft);
+}
+
+.calendarNav:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.calendarWeekday {
+  padding: 6px 0;
+  color: var(--muted);
+  font-size: 11px;
+  text-align: center;
+}
+
+.calendarDay {
+  min-height: 34px;
+  aspect-ratio: 1;
+  border: 1px solid transparent;
+  background: transparent;
   color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.calendarDay:hover:not(:disabled) {
+  border-color: var(--cyan-soft);
+}
+
+.calendarDay:disabled {
+  color: #3f484c;
+  cursor: not-allowed;
+}
+
+.calendarDayActive {
+  border-color: var(--red);
+  background: var(--red);
+  color: var(--text);
+  font-weight: 800;
+}
+
+.calendarHint {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.sessionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.sessionCard {
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  background: #07090a;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  text-align: start;
+  cursor: pointer;
+}
+
+.sessionCard b {
+  color: var(--text);
+  font-size: 14px;
+}
+
+.sessionCard:hover:not(:disabled) {
+  border-color: var(--cyan-soft);
+}
+
+.sessionCardActive {
+  border-color: var(--red);
+  background: rgba(196, 37, 54, 0.08);
+}
+
+.sessionCard:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.queueCard {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 4px 16px;
+  margin-bottom: 24px;
+  padding: 18px 20px;
+  border: 1px solid var(--red);
+  background: rgba(196, 37, 54, 0.08);
+}
+
+.queueCard > span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.queueCard > span:first-child {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.queueCard > b {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  font-size: 36px;
+  line-height: 1;
+}
+
+.queueCard > span:last-child {
+  grid-column: 2;
+  grid-row: 2;
 }
 
 .providerRow {

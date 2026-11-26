@@ -3,9 +3,13 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { getBrowserClient } from '@/lib/supabase/client';
-import { appointmentServices } from '@/lib/appointments/services';
-import { todayIso } from '@/lib/appointments/slots';
-import type { BookingConfig, PaymentProvider } from '@/lib/appointments/types';
+import { generalCheckupService, appointmentServices } from '@/lib/appointments/services';
+import { isOpenDay, todayIso } from '@/lib/appointments/slots';
+import type {
+  AvailableSession,
+  BookingConfig,
+  PaymentProvider,
+} from '@/lib/appointments/types';
 import styles from '../booking.module.css';
 
 type Props = {
@@ -16,9 +20,13 @@ type Confirmation = {
   reference: string;
   service: string;
   date: string;
-  time: string;
+  sessionStart: string;
+  sessionEnd: string;
   status: string;
   paymentStatus: string;
+  queueNumber: number;
+  expectedWaitMinutes: number;
+  doctorArrivalTime: string;
 };
 
 type BookingResponse = {
@@ -26,8 +34,43 @@ type BookingResponse = {
   status?: string;
   paymentStatus?: string;
   redirectUrl?: string;
+  queueNumber?: number;
+  expectedWaitMinutes?: number;
+  doctorArrivalTime?: string;
   error?: string;
 };
+
+const weekdayLabels = [
+  'أحد',
+  'اثنين',
+  'ثلاثاء',
+  'أربعاء',
+  'خميس',
+  'جمعة',
+  'سبت',
+];
+
+function isoDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function monthLabel(date: Date): string {
+  return new Intl.DateTimeFormat('ar-EG-u-nu-latn', {
+    month: 'long',
+    year: 'numeric',
+  }).format(date);
+}
+
+function shortTime(value: string): string {
+  return value.slice(0, 5);
+}
+
+function sessionRange(session: AvailableSession): string {
+  return `${shortTime(session.session_start)} – ${shortTime(session.session_end)}`;
+}
 
 async function functionErrorMessage(error: unknown): Promise<string> {
   const response = (error as { context?: Response } | null)?.context;
@@ -49,43 +92,47 @@ export default function BookingForm({ config }: Props) {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
-  const [serviceId, setServiceId] = useState(appointmentServices[0].id);
+  const [serviceId, setServiceId] = useState('');
   const [date, setDate] = useState(todayIso());
-  const [time, setTime] = useState('');
+  const [sessionStart, setSessionStart] = useState('');
   const [note, setNote] = useState('');
   const [provider, setProvider] = useState<PaymentProvider | null>(null);
   const [status, setStatus] = useState('');
   const [busy, setBusy] = useState(false);
-  const [slots, setSlots] = useState<string[]>([]);
-  const [slotsLoading, setSlotsLoading] = useState(true);
+  const [sessions, setSessions] = useState<AvailableSession[]>([]);
+  const [sessionsLoading, setSessionsLoading] = useState(true);
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
+  const [visibleMonth, setVisibleMonth] = useState(() => {
+    const today = new Date(`${todayIso()}T12:00:00`);
+    return new Date(today.getFullYear(), today.getMonth(), 1);
+  });
 
-  // Availability comes from the database so session quotas and one-off
-  // closures are applied at the same place that enforces them on booking.
+  // Sessions come from the database so the same quotas, closures and doctor
+  // schedule shown here are the ones enforced when the booking is inserted.
   useEffect(() => {
     const supabase = getBrowserClient();
     if (!supabase || !date) {
-      setSlots([]);
-      setSlotsLoading(false);
+      setSessions([]);
+      setSessionStart('');
+      setSessionsLoading(false);
       return;
     }
 
     let active = true;
-    setSlots([]);
-    setSlotsLoading(true);
+    setSessions([]);
+    setSessionStart('');
+    setSessionsLoading(true);
     void supabase
-      .rpc('booking_available_slots', { p_date: date })
+      .rpc('booking_available_sessions', { p_date: date })
       .then(({ data, error }) => {
         if (!active) return;
         if (error) {
-          setSlots([]);
-          setStatus('تعذّر تحميل الأوقات المتاحة. حاول لاحقًا.');
+          setSessions([]);
+          setStatus('تعذّر تحميل جلسات الطبيب. حاول لاحقًا.');
         } else {
-          setSlots(
-            ((data ?? []) as { slot: string }[]).map((row) => row.slot.slice(0, 5))
-          );
+          setSessions((data ?? []) as AvailableSession[]);
         }
-        setSlotsLoading(false);
+        setSessionsLoading(false);
       });
 
     return () => {
@@ -99,9 +146,47 @@ export default function BookingForm({ config }: Props) {
     config?.fawry_enabled ? 'fawry' : null,
   ].filter(Boolean) as PaymentProvider[];
 
-  const selectedService =
-    appointmentServices.find((service) => service.id === serviceId) ??
-    appointmentServices[0];
+  const selectedService = serviceId
+    ? appointmentServices.find((service) => service.id === serviceId) ??
+      generalCheckupService
+    : generalCheckupService;
+  const selectedSession = sessions.find(
+    (session) => session.session_start === sessionStart
+  );
+  const today = todayIso();
+
+  if (!config) {
+    return (
+      <div className={styles.card}>
+        <p className={`${styles.message} ${styles.error}`}>
+          الحجوزات الإلكترونية غير مفعّلة بعد. اتصل بالعيادة مباشرة.
+        </p>
+        <div className={styles.actions}>
+          <a href="tel:+201285827427" className={styles.primary} dir="ltr">
+            +20 12 85827427
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  const firstOfMonth = new Date(
+    visibleMonth.getFullYear(),
+    visibleMonth.getMonth(),
+    1
+  );
+  const gridStart = new Date(firstOfMonth);
+  gridStart.setDate(1 - firstOfMonth.getDay());
+  const calendarDays = Array.from({ length: 42 }, (_, index) => {
+    const cell = new Date(gridStart);
+    cell.setDate(gridStart.getDate() + index);
+    return cell;
+  });
+  const thisMonth = new Date(`${today}T12:00:00`);
+  const canGoBack =
+    visibleMonth.getFullYear() > thisMonth.getFullYear() ||
+    (visibleMonth.getFullYear() === thisMonth.getFullYear() &&
+      visibleMonth.getMonth() > thisMonth.getMonth());
 
   async function submit() {
     if (confirmation) return;
@@ -118,8 +203,8 @@ export default function BookingForm({ config }: Props) {
       setStatus('البريد الإلكتروني غير صالح.');
       return;
     }
-    if (!time) {
-      setStatus('اختر وقتًا من الأوقات المتاحة.');
+    if (!selectedSession) {
+      setStatus('اختر جلسة الطبيب من القائمة.');
       return;
     }
     if (needsPayment && !provider) {
@@ -137,9 +222,9 @@ export default function BookingForm({ config }: Props) {
         fullName: fullName.trim(),
         phone: phone.trim(),
         email: email.trim() || null,
-        serviceId,
+        serviceId: serviceId || generalCheckupService.id,
         date,
-        time,
+        time: selectedSession.session_start,
         note,
         provider,
       },
@@ -162,9 +247,16 @@ export default function BookingForm({ config }: Props) {
       reference: booked.bookingReference ?? '',
       service: selectedService.label,
       date,
-      time,
+      sessionStart: shortTime(selectedSession.session_start),
+      sessionEnd: shortTime(selectedSession.session_end),
       status: booked.status === 'awaiting_payment' ? 'بانتظار الدفع' : 'مؤكد',
-      paymentStatus: booked.paymentStatus === 'due_at_clinic' ? 'يدفع في العيادة' : 'جارٍ الدفع',
+      paymentStatus:
+        booked.paymentStatus === 'due_at_clinic' ? 'يدفع في العيادة' : 'جارٍ الدفع',
+      queueNumber: booked.queueNumber ?? 1,
+      expectedWaitMinutes: booked.expectedWaitMinutes ?? 0,
+      doctorArrivalTime: shortTime(
+        booked.doctorArrivalTime ?? selectedSession.doctor_arrival_time
+      ),
     });
 
     if (booked.redirectUrl) {
@@ -174,21 +266,6 @@ export default function BookingForm({ config }: Props) {
     setBusy(false);
   }
 
-  if (!config) {
-    return (
-      <div className={styles.card}>
-        <p className={`${styles.message} ${styles.error}`}>
-          الحجوزات الإلكترونية غير مفعّلة بعد. اتصل بالعيادة مباشرة.
-        </p>
-        <div className={styles.actions}>
-          <a href="tel:+201285827427" className={styles.primary} dir="ltr">
-            +20 12 85827427
-          </a>
-        </div>
-      </div>
-    );
-  }
-
   if (confirmation) {
     return (
       <div className={styles.card}>
@@ -196,6 +273,14 @@ export default function BookingForm({ config }: Props) {
         <p className={styles.cardNote}>
           احتفظ برقم الحجز، واستخدم الاسم ورقم الهاتف اللذين أدخلتهما عند الحجز.
         </p>
+
+        <div className={styles.queueCard}>
+          <span>رقم دورك</span>
+          <b dir="ltr">{confirmation.queueNumber}</b>
+          <span>
+            الانتظار المتوقع {confirmation.expectedWaitMinutes} دقيقة
+          </span>
+        </div>
 
         <div className={styles.summary}>
           <div className={styles.summaryRow}>
@@ -211,8 +296,14 @@ export default function BookingForm({ config }: Props) {
             <b dir="ltr">{confirmation.date}</b>
           </div>
           <div className={styles.summaryRow}>
-            <span>الوقت</span>
-            <b dir="ltr">{confirmation.time}</b>
+            <span>جلسة الطبيب</span>
+            <b dir="ltr">
+              {confirmation.sessionStart} – {confirmation.sessionEnd}
+            </b>
+          </div>
+          <div className={styles.summaryRow}>
+            <span>وصول الطبيب</span>
+            <b dir="ltr">{confirmation.doctorArrivalTime}</b>
           </div>
           <div className={styles.summaryRow}>
             <span>الحالة</span>
@@ -298,15 +389,9 @@ export default function BookingForm({ config }: Props) {
           />
         </div>
 
-        <h2 className={styles.cardTitle}>تفاصيل الموعد</h2>
-        <p className={styles.cardNote}>
-          الأوقات المعروضة من إعدادات العيادة. لا يمكن حجز أكثر من مريض في نفس
-          الوقت.
-        </p>
-
         <div className={styles.field}>
           <label className={styles.label} htmlFor="service">
-            التخصص
+            التخصص (اختياري)
           </label>
           <select
             id="service"
@@ -314,6 +399,7 @@ export default function BookingForm({ config }: Props) {
             value={serviceId}
             onChange={(event) => setServiceId(event.target.value)}
           >
+            <option value="">{generalCheckupService.label} — بدون تحديد</option>
             {appointmentServices.map((service) => (
               <option key={service.id} value={service.id}>
                 {service.label}
@@ -322,45 +408,126 @@ export default function BookingForm({ config }: Props) {
           </select>
         </div>
 
+        <h2 className={styles.cardTitle}>موعدك</h2>
+        <p className={styles.cardNote}>
+          اختر يومًا من التقويم، ثم اختر جلسة الطبيب. لا تختار وقتًا محددًا؛
+          سيمنحك النظام رقم دور ووقت انتظار متوقع.
+        </p>
+
         <div className={styles.field}>
-          <label className={styles.label} htmlFor="date">
-            اليوم
-          </label>
-          <input
-            id="date"
-            type="date"
-            min={todayIso()}
-            className={styles.input}
-            value={date}
-            onChange={(event) => {
-              setDate(event.target.value);
-              setTime('');
-            }}
-          />
+          <span className={styles.label}>اليوم</span>
+          <div className={styles.calendar}>
+            <div className={styles.calendarHead}>
+              <button
+                type="button"
+                className={styles.calendarNav}
+                disabled={!canGoBack}
+                aria-label="الشهر السابق"
+                onClick={() =>
+                  setVisibleMonth(
+                    new Date(
+                      visibleMonth.getFullYear(),
+                      visibleMonth.getMonth() - 1,
+                      1
+                    )
+                  )
+                }
+              >
+                ‹
+              </button>
+              <strong>{monthLabel(visibleMonth)}</strong>
+              <button
+                type="button"
+                className={styles.calendarNav}
+                aria-label="الشهر التالي"
+                onClick={() =>
+                  setVisibleMonth(
+                    new Date(
+                      visibleMonth.getFullYear(),
+                      visibleMonth.getMonth() + 1,
+                      1
+                    )
+                  )
+                }
+              >
+                ›
+              </button>
+            </div>
+
+            <div className={styles.calendarGrid}>
+              {weekdayLabels.map((label) => (
+                <span key={label} className={styles.calendarWeekday}>
+                  {label}
+                </span>
+              ))}
+              {calendarDays.map((cell) => {
+                const cellIso = isoDate(cell);
+                const outsideMonth =
+                  cell.getMonth() !== visibleMonth.getMonth();
+                const disabled =
+                  outsideMonth ||
+                  cellIso < today ||
+                  !isOpenDay(config, cellIso);
+                const selected = cellIso === date;
+
+                return (
+                  <button
+                    key={cellIso}
+                    type="button"
+                    className={`${styles.calendarDay} ${
+                      selected ? styles.calendarDayActive : ''
+                    }`}
+                    disabled={disabled}
+                    aria-label={cellIso}
+                    aria-pressed={selected}
+                    onClick={() => setDate(cellIso)}
+                  >
+                    {cell.getDate()}
+                  </button>
+                );
+              })}
+            </div>
+            <p className={styles.calendarHint}>
+              اليوم المختار: <b dir="ltr">{date}</b>
+            </p>
+          </div>
         </div>
 
         <div className={styles.field}>
-          <span className={styles.label}>الوقت المتاح</span>
-          {slots.length ? (
-            <div className={styles.slotGrid}>
-              {slots.map((slot) => (
-                <button
-                  key={slot}
-                  type="button"
-                  className={`${styles.slot} ${
-                    time === slot ? styles.slotActive : ''
-                  }`}
-                  onClick={() => setTime(slot)}
-                >
-                  <span dir="ltr">{slot}</span>
-                </button>
-              ))}
+          <span className={styles.label}>جلسة الطبيب</span>
+          {sessions.length ? (
+            <div className={styles.sessionGrid}>
+              {sessions.map((session) => {
+                const active = session.session_start === sessionStart;
+                const full = session.remaining <= 0;
+
+                return (
+                  <button
+                    key={session.session_start}
+                    type="button"
+                    className={`${styles.sessionCard} ${
+                      active ? styles.sessionCardActive : ''
+                    }`}
+                    disabled={full}
+                    aria-pressed={active}
+                    onClick={() => setSessionStart(session.session_start)}
+                  >
+                    <b dir="ltr">{sessionRange(session)}</b>
+                    <span>وصول الطبيب {shortTime(session.doctor_arrival_time)}</span>
+                    <span>
+                      {full
+                        ? 'اكتملت الجلسة'
+                        : `متبقٍ ${session.remaining} من ${session.patient_limit}`}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           ) : (
             <p className={styles.message}>
-              {slotsLoading
-                ? 'جارٍ تحميل الأوقات المتاحة…'
-                : 'لا توجد أوقات متاحة لهذا اليوم.'}
+              {sessionsLoading
+                ? 'جارٍ تحميل جلسات الطبيب…'
+                : 'لا توجد جلسات متاحة لهذا اليوم.'}
             </p>
           )}
         </div>
@@ -387,7 +554,7 @@ export default function BookingForm({ config }: Props) {
               busy ||
               fullName.trim().length < 2 ||
               !phone.trim() ||
-              !time ||
+              !selectedSession ||
               (needsPayment && !provider)
             }
             onClick={() => void submit()}
@@ -413,10 +580,26 @@ export default function BookingForm({ config }: Props) {
             <b dir="ltr">300 EGP</b>
           </div>
           <div className={styles.summaryRow}>
-            <span>الوقت</span>
+            <span>اليوم</span>
+            <b dir="ltr">{date}</b>
+          </div>
+          <div className={styles.summaryRow}>
+            <span>جلسة الطبيب</span>
             <b dir="ltr">
-              {date} {time}
+              {selectedSession ? sessionRange(selectedSession) : '—'}
             </b>
+          </div>
+          <div className={styles.summaryRow}>
+            <span>وصول الطبيب</span>
+            <b dir="ltr">
+              {selectedSession
+                ? shortTime(selectedSession.doctor_arrival_time)
+                : '—'}
+            </b>
+          </div>
+          <div className={styles.summaryRow}>
+            <span>رقم الدور</span>
+            <b>يُحدد بعد الحجز</b>
           </div>
           <div className={styles.summaryRow}>
             <span>النوع</span>

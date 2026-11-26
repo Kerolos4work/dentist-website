@@ -70,13 +70,13 @@ export type ClosedDate = {
   appointment_date: string;
 };
 
-export type AvailableSlot = {
-  slot: string;
+export type AvailableSession = {
   session_start: string;
   session_end: string;
   patient_limit: number;
   booked: number;
   remaining: number;
+  doctor_arrival_time: string;
 };
 
 export type Appointment = {
@@ -93,6 +93,9 @@ export type Appointment = {
   appointment_date: string;
   start_time: string;
   end_time: string | null;
+  queue_number: number | null;
+  expected_wait_minutes: number | null;
+  doctor_arrival_time: string | null;
   status: AppointmentStatus;
   payment_provider: PaymentProvider | null;
   payment_status: PaymentStatus;
@@ -112,6 +115,9 @@ export type GuestAppointment = {
   appointment_date: string;
   start_time: string;
   end_time: string | null;
+  queue_number: number | null;
+  expected_wait_minutes: number | null;
+  doctor_arrival_time: string | null;
   status: AppointmentStatus;
   payment_status: PaymentStatus;
   payment_provider: PaymentProvider | null;

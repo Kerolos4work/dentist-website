@@ -119,8 +119,26 @@ function AppointmentInfo({
           <b dir="ltr">{appointment.appointment_date}</b>
         </div>
         <div>
-          <span>الوقت</span>
-          <b dir="ltr">{appointment.start_time}</b>
+          <span>الوقت المتوقع للكشف</span>
+          <b dir="ltr">{appointment.start_time.slice(0, 5)}</b>
+        </div>
+        <div>
+          <span>رقم الدور</span>
+          <b dir="ltr">{appointment.queue_number ?? '—'}</b>
+        </div>
+        <div>
+          <span>الانتظار المتوقع</span>
+          <b>
+            {appointment.expected_wait_minutes === null
+              ? '—'
+              : `${appointment.expected_wait_minutes} دقيقة`}
+          </b>
+        </div>
+        <div>
+          <span>وصول الطبيب</span>
+          <b dir="ltr">
+            {appointment.doctor_arrival_time?.slice(0, 5) ?? '—'}
+          </b>
         </div>
         <div>
           <span>الدفع</span>
