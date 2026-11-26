@@ -39,11 +39,6 @@ export default async function DashboardEntryPage({
           </p>
         </header>
         <div className={styles.card}>
-          {error === 'blocked' ? (
-            <p className={`${styles.message} ${styles.error}`}>
-              لا يمكن استخدام هذا الحساب لتسجيل الدخول.
-            </p>
-          ) : null}
           {error === 'forbidden' ? (
             <p className={`${styles.message} ${styles.error}`}>
               هذا الحساب لا يملك صلاحية دخول لوحة الموظفين.

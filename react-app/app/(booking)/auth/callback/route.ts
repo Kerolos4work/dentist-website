@@ -1,7 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import {
-  isBlockedEmail,
   isStaffEmail,
   isSupabaseConfigured,
   supabaseConfig,
@@ -35,10 +34,6 @@ export async function GET(request: NextRequest) {
   const next = safeNext(incoming.searchParams.get('next'), audience);
   const authError =
     audience === 'staff' ? '/dashboard?error=auth' : '/my-appointments?error=auth';
-  const blockedError =
-    audience === 'staff'
-      ? '/dashboard?error=blocked'
-      : '/my-appointments?error=blocked';
 
   if (!code || !isSupabaseConfigured()) {
     return NextResponse.redirect(new URL(authError, request.url));
@@ -67,13 +62,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL(authError, request.url));
   }
 
-  // Return a fresh redirect without the exchanged session cookies so the
-  // blocked identity is never persisted in this browser.
-  const email = data.user.email ?? undefined;
-  if (isBlockedEmail(email)) {
-    return NextResponse.redirect(new URL(blockedError, request.url));
-  }
-
   if (audience === 'staff') {
     const { data: profile } = await supabase
       .from('profiles')
@@ -83,7 +71,7 @@ export async function GET(request: NextRequest) {
     const role = profile?.role;
     const domainAllowed =
       !supabaseConfig.staffDomain ||
-      isStaffEmail(email);
+      isStaffEmail(data.user.email ?? undefined);
     const roleAllowed = ['nurse', 'doctor', 'admin'].includes(role ?? '');
 
     if (!domainAllowed || !roleAllowed) {

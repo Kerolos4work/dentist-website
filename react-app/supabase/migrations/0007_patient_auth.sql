@@ -43,15 +43,6 @@ begin
     raise exception 'سجّل الدخول أولًا.';
   end if;
 
-  if exists (
-    select 1
-    from auth.users u
-    where u.id = v_user
-      and lower(btrim(coalesce(u.email, ''))) = 'dr.adel.yousry@gmail.com'
-  ) then
-    raise exception 'لا يمكن استخدام هذا الحساب لتسجيل الدخول.';
-  end if;
-
   if v_reference = '' or v_phone is null then
     raise exception 'بيانات البحث غير صحيحة.';
   end if;
@@ -131,15 +122,6 @@ declare
 begin
   if v_user is null then
     raise exception 'سجّل الدخول أولًا.';
-  end if;
-
-  if exists (
-    select 1
-    from auth.users u
-    where u.id = v_user
-      and lower(btrim(coalesce(u.email, ''))) = 'dr.adel.yousry@gmail.com'
-  ) then
-    raise exception 'لا يمكن استخدام هذا الحساب لتسجيل الدخول.';
   end if;
 
   select a.*

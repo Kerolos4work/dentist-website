@@ -21,6 +21,5 @@ The appointment UI works without credentials in a read-only “not configured”
 - Clients may only update `status` (to cancel their own booking) or a nurse may update `status`/`nurse_note`. Column grants and RLS both apply.
 - Payment confirmation comes only from a signed webhook. `payment-webhook` is idempotent and only moves `awaiting_payment → confirmed`.
 - Staff dashboard access requires a verified database role; Google login alone never grants staff access. The optional domain check is not an access rule by itself.
-- `dr.adel.yousry@gmail.com` is blocked from staff and patient sign-in. The callback checks the verified Google email, and existing sessions are ignored by the app; the booking function and patient RPCs repeat the check.
 - `booking_config` is a column-limited view so patients cannot read internal hold/cancellation rules.
 - Confirm Fawry's exact signature string and Paymob's callback field names against the live merchant dashboards before enabling either provider. The webhook code uses the documented HMAC-over-body contract.

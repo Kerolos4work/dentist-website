@@ -12,10 +12,6 @@ const cors = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// The verified email comes from the access token, never from the request body.
-// This identity is excluded from patient accounts and booking links.
-const blockedEmails = new Set(['dr.adel.yousry@gmail.com']);
-
 const serviceIds = new Set([
   'general-checkup',
   'full-arch',
@@ -282,13 +278,6 @@ Deno.serve(async (req) => {
         { error: 'انتهت جلسة الدخول. سجّل الدخول مرة أخرى.' },
         401
       );
-    }
-    if (
-      blockedEmails.has(
-        (data.user.email ?? '').trim().toLowerCase()
-      )
-    ) {
-      return json({ error: 'لا يمكن استخدام هذا الحساب لتسجيل الدخول.' }, 403);
     }
     patientId = data.user.id;
   }

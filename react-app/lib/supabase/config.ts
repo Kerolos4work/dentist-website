@@ -15,15 +15,6 @@ export function isSupabaseConfigured() {
   return Boolean(supabaseConfig.url && supabaseConfig.anonKey);
 }
 
-// This identity is excluded from both staff and patient sign-in. Google returns
-// a verified email, so the check is safe to run after the OAuth callback.
-const blockedEmails = new Set(['dr.adel.yousry@gmail.com']);
-
-export function isBlockedEmail(email: string | undefined) {
-  if (!email) return false;
-  return blockedEmails.has(email.trim().toLowerCase());
-}
-
 export function isStaffEmail(email: string | undefined) {
   if (!email || !supabaseConfig.staffDomain) return false;
   return email.toLowerCase().endsWith(`@${supabaseConfig.staffDomain}`);

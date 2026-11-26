@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getBrowserClient } from '@/lib/supabase/client';
-import { isBlockedEmail } from '@/lib/supabase/config';
 import styles from '../booking.module.css';
 
 export default function DevLoginForm() {
@@ -20,24 +19,9 @@ export default function DevLoginForm() {
 
     setBusy(true);
     setStatus('');
-    if (isBlockedEmail(email)) {
-      setStatus('لا يمكن استخدام هذا الحساب لتسجيل الدخول.');
-      setBusy(false);
-      return;
-    }
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       setStatus(error.message);
-      setBusy(false);
-      return;
-    }
-    if (isBlockedEmail(data.user?.email ?? undefined)) {
-      await supabase.auth.signOut();
-      setStatus('لا يمكن استخدام هذا الحساب لتسجيل الدخول.');
       setBusy(false);
       return;
     }

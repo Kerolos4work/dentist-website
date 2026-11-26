@@ -55,7 +55,7 @@ Google is currently disabled on the new project.
    ```
 4. Set the Supabase Site URL to the production domain.
 
-Patient and staff sign-in both use this provider. They are separated by the `audience` parameter in `/auth/callback` and by the database role check. Do not assign a staff role to `dr.adel.yousry@gmail.com`; that identity is blocked from both sign-in paths.
+Patient and staff sign-in both use this provider. They are separated by the `audience` parameter in `/auth/callback` and by the database role check.
 
 ## 4. Assign staff roles
 
