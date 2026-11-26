@@ -1,21 +1,42 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
-import { isStaffEmail, isSupabaseConfigured, supabaseConfig } from '@/lib/supabase/config';
+import {
+  isStaffEmail,
+  isSupabaseConfigured,
+  supabaseConfig,
+} from '@/lib/supabase/config';
 
-function safeNext(value: string | null) {
+type Audience = 'staff' | 'patient';
+
+function audienceFor(value: string | null): Audience {
+  return value === 'staff' ? 'staff' : 'patient';
+}
+
+function safeNext(value: string | null, audience: Audience) {
+  const fallback = audience === 'staff' ? '/dashboard' : '/my-appointments';
   if (!value || !value.startsWith('/') || value.startsWith('//')) {
-    return '/appointments';
+    return fallback;
   }
-  return value;
+
+  if (audience === 'staff') {
+    return value.startsWith('/dashboard') ? value : fallback;
+  }
+
+  return value === '/appointments' || value === '/my-appointments'
+    ? value
+    : fallback;
 }
 
 export async function GET(request: NextRequest) {
   const incoming = new URL(request.url);
   const code = incoming.searchParams.get('code');
-  const next = safeNext(incoming.searchParams.get('next'));
+  const audience = audienceFor(incoming.searchParams.get('audience'));
+  const next = safeNext(incoming.searchParams.get('next'), audience);
+  const authError =
+    audience === 'staff' ? '/dashboard?error=auth' : '/my-appointments?error=auth';
 
   if (!code || !isSupabaseConfigured()) {
-    return NextResponse.redirect(new URL('/appointments?error=auth', request.url));
+    return NextResponse.redirect(new URL(authError, request.url));
   }
 
   const response = NextResponse.redirect(new URL(next, request.url));
@@ -38,21 +59,22 @@ export async function GET(request: NextRequest) {
 
   const { data, error } = await supabase.auth.exchangeCodeForSession(code);
   if (error || !data.user) {
-    return NextResponse.redirect(new URL('/appointments?error=auth', request.url));
+    return NextResponse.redirect(new URL(authError, request.url));
   }
 
-  if (next.startsWith('/dashboard')) {
+  if (audience === 'staff') {
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', data.user.id)
       .maybeSingle();
     const role = profile?.role;
+    const domainAllowed =
+      !supabaseConfig.staffDomain ||
+      isStaffEmail(data.user.email ?? undefined);
+    const roleAllowed = ['nurse', 'doctor', 'admin'].includes(role ?? '');
 
-    if (
-      !isStaffEmail(data.user.email ?? undefined) ||
-      !['nurse', 'doctor', 'admin'].includes(role ?? '')
-    ) {
+    if (!domainAllowed || !roleAllowed) {
       return NextResponse.redirect(
         new URL('/dashboard?error=forbidden', request.url)
       );

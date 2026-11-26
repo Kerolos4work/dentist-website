@@ -264,6 +264,24 @@ Deno.serve(async (req) => {
     auth: { persistSession: false },
   });
 
+  // supabase-js sends the signed-in patient's access token automatically.
+  // A guest request has no token and continues with the existing flow.
+  let patientId: string | null = null;
+  const authHeader = req.headers.get('Authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    const token = authHeader.slice(7).trim();
+    const { data, error } = token
+      ? await admin.auth.getUser(token)
+      : { data: { user: null }, error: null };
+    if (error || !data.user) {
+      return json(
+        { error: 'انتهت جلسة الدخول. سجّل الدخول مرة أخرى.' },
+        401
+      );
+    }
+    patientId = data.user.id;
+  }
+
   let body: BookingBody;
   try {
     body = await req.json();
@@ -361,6 +379,26 @@ Deno.serve(async (req) => {
     expectedWaitMinutes: booked.out_expected_wait_minutes,
     doctorArrivalTime: booked.out_doctor_arrival_time,
   };
+
+  // The user ID came from a verified access token, never from the request body.
+  if (patientId) {
+    const { error: linkError } = await admin
+      .from('appointments')
+      .update({ patient_id: patientId })
+      .eq('id', booked.out_id)
+      .is('patient_id', null);
+
+    if (linkError) {
+      await admin
+        .from('appointments')
+        .update({ status: 'cancelled' })
+        .eq('id', booked.out_id);
+      return json(
+        { error: 'تعذّر حفظ الحجز في حسابك. حاول لاحقًا.' },
+        500
+      );
+    }
+  }
 
   if (!needsPayment) {
     return json(booking);

@@ -10,8 +10,13 @@ export const metadata: Metadata = {
   description: 'دخول الممرضة والطبيب لإدارة حجوزات العيادة.',
 };
 
-export default async function DashboardEntryPage() {
+export default async function DashboardEntryPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
   const session = await getSessionContext();
+  const { error } = await searchParams;
 
   if (!session.configured) {
     return (
@@ -34,6 +39,16 @@ export default async function DashboardEntryPage() {
           </p>
         </header>
         <div className={styles.card}>
+          {error === 'forbidden' ? (
+            <p className={`${styles.message} ${styles.error}`}>
+              هذا الحساب لا يملك صلاحية دخول لوحة الموظفين.
+            </p>
+          ) : null}
+          {error === 'auth' ? (
+            <p className={`${styles.message} ${styles.error}`}>
+              تعذّر إتمام الدخول. حاول مرة أخرى.
+            </p>
+          ) : null}
           <SignIn next="/dashboard" />
         </div>
       </div>

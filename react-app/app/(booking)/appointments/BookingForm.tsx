@@ -11,6 +11,7 @@ import type {
   PaymentProvider,
 } from '@/lib/appointments/types';
 import styles from '../booking.module.css';
+import GoogleSignInButton from '../GoogleSignInButton';
 import SessionPicker from './SessionPicker';
 
 type Props = {
@@ -39,6 +40,12 @@ type BookingResponse = {
   expectedWaitMinutes?: number;
   doctorArrivalTime?: string;
   error?: string;
+};
+
+type AuthUser = {
+  id: string;
+  email: string | null;
+  fullName: string | null;
 };
 
 const weekdayLabels = [
@@ -118,6 +125,7 @@ export default function BookingForm({ config }: Props) {
   const [sessions, setSessions] = useState<AvailableSession[]>([]);
   const [sessionsLoading, setSessionsLoading] = useState(true);
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [visibleMonth, setVisibleMonth] = useState(() => {
     const today = new Date(`${todayIso()}T12:00:00`);
     return new Date(today.getFullYear(), today.getMonth(), 1);
@@ -139,6 +147,38 @@ export default function BookingForm({ config }: Props) {
       <p className={styles.fieldError}>{status}</p>
     ) : null;
   }
+
+  // Google sign-in is optional. A signed-in patient gets name/email prefill and
+  // the Edge Function receives the session token automatically, so the booking
+  // is saved under that patient's account.
+  useEffect(() => {
+    const supabase = getBrowserClient();
+    if (!supabase) return;
+
+    let active = true;
+    void supabase.auth.getUser().then(({ data }) => {
+      if (!active || !data.user) return;
+      const fullNameFromGoogle =
+        typeof data.user.user_metadata?.full_name === 'string'
+          ? data.user.user_metadata.full_name
+          : null;
+      setAuthUser({
+        id: data.user.id,
+        email: data.user.email ?? null,
+        fullName: fullNameFromGoogle,
+      });
+      if (fullNameFromGoogle) {
+        setFullName((current) => current || fullNameFromGoogle);
+      }
+      if (data.user.email) {
+        setEmail((current) => current || data.user.email || '');
+      }
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   // Sessions come from the database so the same quotas, closures and doctor
   // schedule shown here are the ones enforced when the booking is inserted.
@@ -318,7 +358,9 @@ export default function BookingForm({ config }: Props) {
         </div>
 
         <p className={styles.cardNote}>
-          احتفظ برقم الحجز، واستخدم الاسم ورقم الهاتف اللذين أدخلتهما عند الحجز.
+          {authUser
+            ? 'تم حفظ الحجز في حسابك. يمكنك متابعته من صفحة مواعيدي.'
+            : 'احتفظ برقم الحجز، واستخدم الاسم ورقم الهاتف اللذين أدخلتهما عند الحجز.'}
         </p>
 
         <div className={styles.summary}>
@@ -373,6 +415,24 @@ export default function BookingForm({ config }: Props) {
         <p className={styles.cardNote}>
           لا تحتاج إلى حساب. نستخدم الاسم ورقم الهاتف لمتابعة حجزك وإلغائه.
         </p>
+
+        {authUser ? (
+          <p className={styles.message}>
+            ستُحفظ حجوزاتك تلقائيًا في حسابك. بياناتك هنا جاهزة للإرسال.
+          </p>
+        ) : (
+          <>
+            <p className={styles.cardNote}>
+              يمكنك الدخول بـ Google اختياريًا لحفظ حجوزاتك في حسابك.
+            </p>
+            <GoogleSignInButton
+              audience="patient"
+              next="/appointments"
+              label="الدخول بـ Google (اختياري)"
+              variant="ghost"
+            />
+          </>
+        )}
 
         {status ? (
           <p

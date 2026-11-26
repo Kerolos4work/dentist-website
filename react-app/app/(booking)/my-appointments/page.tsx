@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import { getSessionContext } from '@/lib/appointments/data';
 import GuestAppointmentLookup from './GuestAppointmentLookup';
+import PatientAccount from './PatientAccount';
 import styles from '../booking.module.css';
 
 export const metadata: Metadata = {
@@ -7,7 +9,14 @@ export const metadata: Metadata = {
   description: 'تابع حالة حجزك برقم الحجز ورقم الهاتف بدون تسجيل دخول.',
 };
 
-export default function MyAppointmentsPage() {
+export default async function MyAppointmentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const session = await getSessionContext();
+  const { error } = await searchParams;
+
   return (
     <div className={styles.page}>
       <header className={styles.head}>
@@ -19,7 +28,13 @@ export default function MyAppointmentsPage() {
         </p>
       </header>
 
-      <GuestAppointmentLookup />
+      {error === 'auth' ? (
+        <p className={`${styles.message} ${styles.error}`}>
+          تعذّر إتمام الدخول. حاول مرة أخرى.
+        </p>
+      ) : null}
+
+      {session.userId ? <PatientAccount /> : <GuestAppointmentLookup />}
     </div>
   );
 }
