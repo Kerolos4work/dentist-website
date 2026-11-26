@@ -386,14 +386,26 @@
   color: var(--cyan);
 }
 
-/* Plain text, shown only when two or fewer places remain. */
+/* Plain text with a red dot, shown only when two or fewer places remain. */
 .lowBadge {
+  display: inline-flex;
+  align-items: center;
   justify-self: center;
+  gap: 6px;
   margin: 0;
   color: var(--red-soft, #ff7b88);
   font-size: 11px;
   line-height: 1.2;
   white-space: nowrap;
+}
+
+.lowBadge::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--red, #c42536);
+  box-shadow: 0 0 0 3px rgba(196, 37, 54, 0.16);
 }
 
 .confirmationCard {
