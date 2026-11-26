@@ -279,24 +279,6 @@
     transform 0.2s ease;
 }
 
-.sessionTime {
-  color: var(--text);
-  font-family: var(--font-anton), Impact, sans-serif;
-  font-size: 18px;
-  letter-spacing: 0.02em;
-  line-height: 1.1;
-}
-
-.sessionMeta,
-.sessionRemaining {
-  font-size: 11px;
-  line-height: 1.4;
-}
-
-.sessionRemaining {
-  color: var(--cyan-soft);
-}
-
 .sessionCard:hover:not(:disabled) {
   border-color: var(--cyan-soft);
 }
@@ -306,58 +288,12 @@
   background: rgba(45, 167, 196, 0.1);
 }
 
-.sessionCardActive .sessionTime,
-.sessionCardActive .sessionRemaining {
-  color: var(--cyan-soft);
-}
-
 .sessionCard:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
 
-/* Dev-only design preview: five ways to present the same session options. */
-.designSwitcher {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 0 0 12px;
-}
-
-.designSwitcherLabel {
-  margin-inline-end: 4px;
-  color: var(--dim);
-  font-size: 11px;
-}
-
-.designButton {
-  width: 28px;
-  height: 28px;
-  border: 1px solid var(--line);
-  background: transparent;
-  color: var(--muted);
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
-  transition:
-    border-color 0.2s ease,
-    background 0.2s ease,
-    color 0.2s ease;
-}
-
-.designButton:hover {
-  border-color: var(--cyan-soft);
-  color: var(--text);
-}
-
-.designButtonActive {
-  border-color: var(--cyan);
-  background: rgba(45, 167, 196, 0.12);
-  color: var(--cyan-soft);
-}
-
-/* 1 — Time only */
+/* Single session-card design: time first, with optional availability text. */
 .sessionGridBare {
   grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
   gap: 10px;
@@ -391,7 +327,7 @@
   );
 }
 
-.sessionCardBare:hover:not(:disabled) {
+.sessionCardBare:hover:not(:disabled):not(.sessionCardActive) {
   border-color: var(--cyan-soft);
   transform: translateY(-1px);
 }
@@ -419,189 +355,18 @@
   line-height: 1.2;
 }
 
-.sessionCardBare .lowBadge {
+.sessionCardActive .bareTime {
+  color: var(--cyan-soft);
+}
+
+/* Plain text, shown only when two or fewer places remain. */
+.lowBadge {
   justify-self: center;
   margin: 0;
-  padding: 3px 8px;
-  border-radius: 999px;
-}
-
-/* Shared low-availability badge; hidden unless two places or fewer remain. */
-.lowBadge {
-  padding: 2px 6px;
-  border: 1px solid rgba(45, 167, 196, 0.38);
-  background: rgba(45, 167, 196, 0.12);
-  color: var(--cyan-soft);
-  font-size: 10px;
+  color: var(--red-soft, #ff7b88);
+  font-size: 11px;
   line-height: 1.2;
   white-space: nowrap;
-}
-
-/* 2 — Time with rule */
-.sessionGridRule {
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 8px;
-}
-
-.sessionCardRule {
-  display: grid;
-  gap: 8px;
-  min-height: 66px;
-  padding: 12px 14px;
-}
-
-.ruleTime {
-  color: var(--text);
-  font-family: var(--font-anton), Impact, sans-serif;
-  font-size: 19px;
-  line-height: 1;
-}
-
-.ruleLine {
-  display: block;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    rgba(45, 167, 196, 0.55),
-    rgba(45, 167, 196, 0.05)
-  );
-}
-
-.sessionCardRule.sessionCardActive .ruleLine {
-  background: var(--cyan);
-}
-
-/* 3 — Stacked index */
-.sessionGridStack {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
-}
-
-.sessionCardStack {
-  display: grid;
-  grid-template-columns: 28px 1fr auto;
-  align-items: center;
-  gap: 12px;
-  min-height: 56px;
-  padding: 10px 12px;
-}
-
-.stackIndex {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border: 1px solid rgba(45, 167, 196, 0.38);
-  color: var(--cyan-soft);
-  font-family: var(--font-anton), Impact, sans-serif;
-  font-size: 11px;
-}
-
-.stackTime {
-  color: var(--text);
-  font-family: var(--font-anton), Impact, sans-serif;
-  font-size: 17px;
-  line-height: 1;
-}
-
-.sessionCardStack.sessionCardActive .stackIndex {
-  border-color: var(--cyan);
-  background: var(--cyan);
-  color: #04171d;
-}
-
-/* 4 — Inline number */
-.sessionGridInline {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.sessionCardInline {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 8px 12px;
-}
-
-.inlineNumber,
-.barNumber {
-  color: var(--dim);
-  font-family: var(--font-anton), Impact, sans-serif;
-  font-size: 11px;
-}
-
-.inlineTime {
-  color: var(--text);
-  font-family: var(--font-anton), Impact, sans-serif;
-  font-size: 16px;
-  line-height: 1;
-}
-
-.sessionCardInline .lowBadge {
-  margin-inline-start: auto;
-}
-
-/* 5 — Progress bars */
-.sessionGridBars {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
-}
-
-.sessionCardBars {
-  display: grid;
-  grid-template-columns: 32px 1fr auto;
-  grid-template-rows: auto 3px;
-  align-items: center;
-  column-gap: 12px;
-  row-gap: 6px;
-  min-height: 0;
-  padding: 10px 12px;
-}
-
-.barNumber {
-  grid-column: 1;
-  grid-row: 1;
-}
-
-.barTime {
-  grid-column: 2;
-  grid-row: 1;
-  color: var(--text);
-  font-family: var(--font-anton), Impact, sans-serif;
-  font-size: 17px;
-  line-height: 1;
-}
-
-.sessionCardBars .lowBadge {
-  grid-column: 3;
-  grid-row: 1;
-}
-
-.barFill {
-  grid-column: 1 / -1;
-  grid-row: 2;
-  height: 3px;
-  background: linear-gradient(
-    90deg,
-    rgba(45, 167, 196, 0.5),
-    rgba(45, 167, 196, 0.08)
-  );
-}
-
-.sessionCardBars.sessionCardActive .barFill {
-  background: var(--cyan);
-}
-
-.sessionCardActive .bareTime,
-.sessionCardActive .ruleTime,
-.sessionCardActive .stackTime,
-.sessionCardActive .inlineTime,
-.sessionCardActive .barTime {
-  color: var(--cyan-soft);
 }
 
 .confirmationCard {
