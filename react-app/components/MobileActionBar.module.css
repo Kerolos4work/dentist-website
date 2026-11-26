@@ -1,0 +1,37 @@
+.bar {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .bar {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 90;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: rgba(6, 8, 9, 0.94);
+    border-top: 1px solid var(--line-strong);
+    backdrop-filter: blur(16px);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .item {
+    padding: 14px 8px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--muted);
+    border-inline-start: 1px solid var(--line);
+  }
+
+  .item:first-child {
+    border-inline-start: 0;
+  }
+
+  .accent {
+    background: var(--red);
+    color: var(--text);
+  }
+}

@@ -1,0 +1,192 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-25T00:00:00.000Z",
+  "title": "Design System: Dr. Adel Yousry Dental Clinic",
+  "extensions": {
+    "colorMeta": {
+      "red": {
+        "role": "primary",
+        "displayName": "Clinical Red",
+        "canonical": "#c42536",
+        "tonalRamp": ["#2b0a0e", "#4d1119", "#741825", "#9c1e31", "#c42536", "#d65261", "#e68c96", "#f5c9ce"]
+      },
+      "red-soft": {
+        "role": "primary",
+        "displayName": "Soft Red",
+        "canonical": "#e68089",
+        "tonalRamp": ["#2b0a0e", "#4d1119", "#741825", "#9c1e31", "#c42536", "#e68089", "#e68c96", "#f5c9ce"]
+      },
+      "cyan": {
+        "role": "secondary",
+        "displayName": "Diagnostic Cyan",
+        "canonical": "#2da7c4",
+        "tonalRamp": ["#08252d", "#0d3b48", "#125363", "#176d80", "#2da7c4", "#62bfd2", "#98d9e5", "#cceef4"]
+      },
+      "blue-line": {
+        "role": "secondary",
+        "displayName": "Blueprint Line",
+        "canonical": "rgba(45,167,196,0.18)",
+        "tonalRamp": ["rgba(45,167,196,0.06)", "rgba(45,167,196,0.12)", "rgba(45,167,196,0.18)", "rgba(45,167,196,0.28)", "rgba(45,167,196,0.46)"]
+      },
+      "blue-line-strong": {
+        "role": "secondary",
+        "displayName": "Blueprint Line Strong",
+        "canonical": "rgba(45,167,196,0.46)",
+        "tonalRamp": ["rgba(45,167,196,0.18)", "rgba(45,167,196,0.28)", "rgba(45,167,196,0.36)", "rgba(45,167,196,0.46)", "rgba(45,167,196,0.7)"]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#060809",
+        "tonalRamp": ["#000000", "#060809", "#0b1012", "#101619", "#151d20", "#2a3438", "#56656a", "#a7b2b5"]
+      },
+      "text": {
+        "role": "neutral",
+        "displayName": "Text",
+        "canonical": "#f3f1ec",
+        "tonalRamp": ["#25282a", "#454a4c", "#657073", "#879194", "#a7b2b5", "#c7cecd", "#e1e2dd", "#f3f1ec"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Hero Display", "purpose": "Hero headline only." },
+      "headline": { "displayName": "Section Headline", "purpose": "Section titles." },
+      "body": { "displayName": "Body", "purpose": "Arabic body copy." },
+      "label": { "displayName": "Stamped Label", "purpose": "Latin numerals and metadata." },
+      "script": { "displayName": "Signature", "purpose": "Doctor's signature line only." }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Hover and reveal transitions."
+      },
+      {
+        "name": "portrait-reveal",
+        "value": "opacity .72 -> 1, translateY(14px) -> 0, clip-path inset(0 0 12% 0) -> inset(0), 0.9s",
+        "purpose": "Single authored hero moment."
+      }
+    ],
+    "breakpoints": [
+      { "name": "v3-map-collapse", "value": "1120px" },
+      { "name": "lg-collapse", "value": "1040px" },
+      { "name": "v3-layout-collapse", "value": "920px" },
+      { "name": "mobile", "value": "760px" },
+      { "name": "v3-small-mobile", "value": "700px" },
+      { "name": "small", "value": "480px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The decisive booking or contact action.",
+      "html": "<a class=\"ds-btn-primary\" href=\"#\">احجز الآن</a>",
+      "css": ".ds-btn-primary { display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 26px; background:var(--red); color:var(--text); border:1px solid var(--red); font-weight:800; font-size:14px; text-decoration:none; transition:background .2s ease,color .2s ease; } .ds-btn-primary:hover { background:transparent; } .ds-btn-primary:focus-visible { outline:2px solid var(--cyan-soft); outline-offset:4px; }"
+    },
+    {
+      "name": "Quiet Link",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "Secondary in-page or source link.",
+      "html": "<a class=\"ds-quiet-link\" href=\"#\">شاهد الحالات</a>",
+      "css": ".ds-quiet-link { display:inline-flex; align-items:center; min-height:48px; padding-bottom:2px; border-bottom:1px solid var(--line-strong); color:var(--muted); font-size:14px; font-weight:700; text-decoration:none; transition:color .2s ease,border-color .2s ease; } .ds-quiet-link:hover { color:var(--cyan-soft); border-color:var(--cyan); } .ds-quiet-link:focus-visible { outline:2px solid var(--cyan-soft); outline-offset:4px; }"
+    },
+    {
+      "name": "V3 Anchor Navigation",
+      "kind": "nav",
+      "refersTo": "anchor-nav",
+      "description": "In-page section navigation for the single-page V3 route.",
+      "html": "<nav class=\"ds-anchor-nav\"><span class=\"ds-anchor-mark\">V3</span><a href=\"#map\">الخريطة</a><a href=\"#cases\">الحالات</a><a href=\"/\">الأصلية</a></nav>",
+      "css": ".ds-anchor-nav { display:flex; align-items:center; gap:18px; min-height:50px; padding:0 var(--gutter); background:rgba(6,8,9,.94); border-bottom:1px solid var(--line); } .ds-anchor-mark { padding-inline-end:16px; border-inline-end:1px solid var(--line); color:var(--cyan-soft); font:400 12px/1 Anton,Impact,sans-serif; letter-spacing:.2em; } .ds-anchor-nav a { color:var(--muted); font-size:13px; font-weight:700; text-decoration:none; } .ds-anchor-nav a:hover { color:var(--cyan-soft); }"
+    },
+    {
+      "name": "Case Figure",
+      "kind": "card",
+      "refersTo": "case-figure",
+      "description": "A real before/after image with an Arabic title and Latin tag.",
+      "html": "<figure class=\"ds-case-figure ds-case-wide\"><div class=\"ds-case-media\"></div><figcaption><b>تجميل الأسنان الأمامية</b><span>VENEERS</span></figcaption></figure>",
+      "css": ".ds-case-figure { margin:0; min-width:0; } .ds-case-figure.ds-case-wide { grid-column:span 7; } .ds-case-figure.ds-case-tall { grid-column:span 5; } .ds-case-media { position:relative; aspect-ratio:4/3; overflow:hidden; border:1px solid var(--line); background:var(--card); } .ds-case-figure figcaption { display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding-top:12px; font-size:13px; } .ds-case-figure figcaption span { color:var(--cyan-soft); font:400 10px/1 Anton,Impact,sans-serif; letter-spacing:.12em; }"
+    },
+    {
+      "name": "Review Block",
+      "kind": "card",
+      "refersTo": "review-block",
+      "description": "Featured patient quote with source metadata.",
+      "html": "<article class=\"ds-review-block\"><div class=\"ds-review-source\"><span>Vezeeta</span><span>5 / 5</span></div><blockquote>بصراحه ممتاز وزوق جدا</blockquote><footer><b>Btol A.</b><a href=\"#\">اقرأ التقييم</a></footer></article>",
+      "css": ".ds-review-block { display:flex; flex-direction:column; border-top:2px solid var(--red); padding-top:26px; } .ds-review-source { display:flex; justify-content:space-between; color:var(--cyan-soft); font:400 11px/1 Anton,Impact,sans-serif; letter-spacing:.14em; } .ds-review-block blockquote { margin:28px 0 30px; font-size:clamp(22px,2.8vw,34px); font-weight:700; line-height:1.65; } .ds-review-block footer { display:flex; flex-wrap:wrap; gap:12px; padding-top:18px; border-top:1px solid var(--line); font-size:13px; } .ds-review-block footer a { margin-inline-start:auto; color:var(--cyan-soft); border-bottom:1px solid rgba(154,217,229,.35); }"
+    },
+    {
+      "name": "V3 Readout Cell",
+      "kind": "card",
+      "refersTo": "v3-readout",
+      "description": "A verified metric rendered as a technical readout.",
+      "html": "<a class=\"ds-v3-readout\" href=\"#\"><b>5.0</b><span>GOOGLE</span><small>100 reviews</small></a>",
+      "css": ".ds-v3-readout { display:flex; flex-direction:column; gap:3px; padding:15px 18px 14px; border:1px solid var(--line); background:var(--surface); color:var(--text); text-decoration:none; } .ds-v3-readout b { font:400 25px/1.1 Anton,Impact,sans-serif; } .ds-v3-readout span { color:var(--cyan-soft); font-size:12px; font-weight:700; } .ds-v3-readout small { color:var(--muted); font-size:11px; } .ds-v3-readout:hover { border-color:rgba(45,167,196,.46); }"
+    },
+    {
+      "name": "V3 Treatment Map Tile",
+      "kind": "card",
+      "refersTo": "v3-map-tile",
+      "description": "A numbered specialty tile in the diagnostic treatment map.",
+      "html": "<article class=\"ds-v3-map-tile\"><span>01</span><h3>تركيبات الفك الكامل</h3><p>إعادة بناء الفك الكامل.</p><span>FULL ARCH</span></article>",
+      "css": ".ds-v3-map-tile { display:flex; flex-direction:column; min-height:214px; padding:24px 22px 20px; background:var(--ink); } .ds-v3-map-tile > span:first-child { color:var(--cyan-soft); font:400 13px/1 Anton,Impact,sans-serif; } .ds-v3-map-tile h3 { margin:14px 0 8px; font-size:18px; } .ds-v3-map-tile p { margin:0 0 22px; color:var(--muted); font-size:13px; } .ds-v3-map-tile > span:last-child { margin-top:auto; color:var(--muted); font:400 10px/1.4 Anton,Impact,sans-serif; } .ds-v3-map-tile:hover { background:var(--card); }"
+    },
+    {
+      "name": "V3 Case Plate",
+      "kind": "card",
+      "refersTo": "v3-case-plate",
+      "description": "An approved case image with a cyan reticle and Latin plate tag.",
+      "html": "<figure class=\"ds-v3-plate\"><div class=\"ds-v3-plate-media\"><span class=\"ds-v3-plate-tag\">VENEERS</span></div><figcaption><b>تجميل الأسنان الأمامية</b><span>Anterior makeover</span></figcaption></figure>",
+      "css": ".ds-v3-plate { margin:0; grid-column:span 3; } .ds-v3-plate.ds-v3-wide { grid-column:span 6; } .ds-v3-plate-media { position:relative; aspect-ratio:4/3; overflow:hidden; border:1px solid var(--line); background:var(--card); } .ds-v3-plate-tag { position:absolute; top:10px; left:10px; padding:5px 8px; background:rgba(6,8,9,.78); color:var(--cyan-soft); font:400 10px/1 Anton,Impact,sans-serif; } .ds-v3-plate figcaption { display:flex; justify-content:space-between; gap:10px; padding-top:11px; font-size:13px; }"
+    },
+    {
+      "name": "V3 Patient Note",
+      "kind": "card",
+      "refersTo": "v3-note",
+      "description": "A verified review presented as a ruled patient note.",
+      "html": "<article class=\"ds-v3-note\"><div><span>Vezeeta</span><span>5 / 5</span></div><blockquote>بصراحه ممتاز وزوق جدا</blockquote><footer><b>Btol A.</b><a href=\"#\">المصدر</a></footer></article>",
+      "css": ".ds-v3-note { padding:24px; border:1px solid var(--line); background-color:var(--card); background-image:repeating-linear-gradient(to bottom, transparent 0 31px, rgba(255,255,255,.035) 31px 32px); } .ds-v3-note > div { display:flex; justify-content:space-between; color:var(--cyan-soft); font:400 11px/1 Anton,Impact,sans-serif; } .ds-v3-note blockquote { margin:20px 0; font-size:16px; line-height:1.85; } .ds-v3-note footer { display:flex; gap:16px; padding-top:14px; border-top:1px solid var(--line); font-size:12px; } .ds-v3-note footer a { margin-inline-start:auto; color:var(--cyan-soft); }"
+    },
+    {
+      "name": "V3 Approval Stamp",
+      "kind": "badge",
+      "refersTo": "v3-approval-stamp",
+      "description": "Decorative approval mark in the red closing band.",
+      "html": "<span class=\"ds-v3-stamp\" aria-hidden=\"true\">APPROVED<br>DR / AY</span>",
+      "css": ".ds-v3-stamp { position:absolute; top:26px; right:var(--gutter); padding:8px 12px; transform:rotate(-4deg); border:1px solid rgba(255,255,255,.6); color:var(--text); font:400 11px/1.5 Anton,Impact,sans-serif; letter-spacing:.16em; } @media (max-width:700px){ .ds-v3-stamp { display:none; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Smile Blueprint",
+    "overview": "V3 is a diagnostic drafting grid: readouts, map tiles, case plates, a plotted protocol, and an approval band. Near-black ground, hairline rules, red decisions, and cyan measurement lines carry the system. The site is Arabic-first and RTL, pairing oversized Cairo display with Anton labels and Pinyon Script for the doctor's signature.",
+    "keyCharacteristics": [
+      "Diagnostic drafting-grid rhythm: readouts, map tiles, case plates, and a plotted protocol.",
+      "V3 first viewport: premise physically left, scan-framed portrait physically right, readouts pinned below.",
+      "Asymmetric compositions that collapse cleanly to one column on mobile.",
+      "Proof integrated into the page edge or grid, not floating as a card row.",
+      "Hard edges, hairline borders, no rounded cards."
+    ],
+    "rules": [
+      { "name": "The Accent Rarity Rule", "body": "Red owns the action and the headline turn. It never becomes a background for ordinary content except the closing call band.", "section": "colors" },
+      { "name": "The No Eyebrow Rule", "body": "Section headings stand alone. Latin labels sit beside them, never above them.", "section": "typography" },
+      { "name": "The Blueprint Grid Rule", "body": "Cyan grid lines and reticles in V3 are measurement language, not decoration or a card scaffold.", "section": "layout" },
+      { "name": "The Surface Distinction Rule", "body": "V1 is the multi-page clinic site; V3 is the diagnostic treatment plan. Borrow facts, not composition.", "section": "overview" }
+    ],
+    "dos": [
+      "Do use real patient images from SOURCES.md with consent disclaimers.",
+      "Do keep Arabic as the reading order and use dir=\"ltr\" only for Latin labels, numbers, and phone strings.",
+      "Do let section headings carry their own weight with no label above them.",
+      "Do keep external source links target=\"_blank\" rel=\"noopener noreferrer\".",
+      "Do keep V1's multi-page structure and V3's diagnostic blueprint as distinct systems."
+    ],
+    "donts": [
+      "Don't add same-size icon cards, gradient text, glass decoration, or hard offset shadows.",
+      "Don't turn a rating or fee into a hero-metric card template.",
+      "Don't invent opening hours, Facebook statistics, or absolute “painless” claims.",
+      "Don't modify V1 routes while working on V3.",
+      "Don't make V3 a restyled copy of V1; its grid, readouts, and protocol must carry the difference."
+    ]
+  }
+}

@@ -1,0 +1,107 @@
+.band {
+  position: relative;
+  overflow: hidden;
+  background: var(--red);
+  color: var(--text);
+  text-align: center;
+}
+
+.arc {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(900px, 110vw);
+  transform: translate(-50%, -30%);
+  color: rgba(255, 255, 255, 0.13);
+  pointer-events: none;
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: clamp(56px, 8vw, 104px) var(--gutter);
+}
+
+.kicker {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.title {
+  max-width: 960px;
+  margin: 0 auto;
+  font-size: clamp(32px, 4.2vw, 56px);
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.25;
+}
+
+.sub {
+  max-width: 560px;
+  margin: 18px auto 28px;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.primary,
+.secondary {
+  display: inline-block;
+  padding: 14px 26px;
+  font-weight: 800;
+  font-size: 16px;
+  border: 1px solid var(--bg);
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.primary {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.primary:hover {
+  background: transparent;
+  color: var(--text);
+}
+
+.secondary {
+  background: transparent;
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.62);
+}
+
+.secondary:hover {
+  background: var(--text);
+  color: var(--red);
+  border-color: var(--text);
+}
+
+.note {
+  margin: 24px 0 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 13px;
+}
+
+@media (max-width: 560px) {
+  .sub {
+    font-size: 16px;
+  }
+
+  .primary,
+  .secondary {
+    width: 100%;
+    text-align: center;
+  }
+}

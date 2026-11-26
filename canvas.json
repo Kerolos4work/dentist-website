@@ -1,0 +1,68 @@
+{
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 1280,
+      "h": 2300,
+      "title": "Home",
+      "expand": "fill"
+    },
+    {
+      "file": "Services.dc.html",
+      "x": 1360,
+      "y": 0,
+      "w": 1280,
+      "h": 1900,
+      "title": "Services",
+      "expand": "fill"
+    },
+    {
+      "file": "Results.dc.html",
+      "x": 2720,
+      "y": 0,
+      "w": 1280,
+      "h": 1900,
+      "title": "Results",
+      "expand": "fill"
+    },
+    {
+      "file": "About.dc.html",
+      "x": 4080,
+      "y": 0,
+      "w": 1280,
+      "h": 1500,
+      "title": "About",
+      "expand": "fill"
+    },
+    {
+      "file": "Contact.dc.html",
+      "x": 5440,
+      "y": 0,
+      "w": 1280,
+      "h": 1300,
+      "title": "Contact",
+      "expand": "fill"
+    },
+    {
+      "file": "Header.dc.html",
+      "x": 0,
+      "y": 2420,
+      "w": 1280,
+      "h": 86,
+      "title": "Header"
+    },
+    {
+      "file": "Footer.dc.html",
+      "x": 1360,
+      "y": 2420,
+      "w": 1280,
+      "h": 300,
+      "title": "Footer"
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  }
+}
