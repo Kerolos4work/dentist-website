@@ -75,12 +75,20 @@ Google login by itself never grants dashboard access.
 
 The old project contains five real bookings. If they must be preserved, migrate appointments with their `booking_reference`, then advance `booking_reference_seq` past the highest imported reference. Do not copy `profiles` rows directly; auth user IDs differ.
 
-## CLI access note
+## CLI account
 
-`kerolos4work@gmail.com` cannot currently link the CLI to `udobxqnafphnzjprlbba`:
+Use `dr.adel.yousry@gmail.com` for Supabase CLI and dashboard access to `udobxqnafphnzjprlbba`:
+
+```bash
+npx supabase logout
+npx supabase login
+npx supabase link --project-ref udobxqnafphnzjprlbba --yes
+```
+
+If that account cannot see the project, an organization admin must invite it to the owning organization. The previous `kerolos4work@gmail.com` session returned:
 
 ```text
 LinkProjectStatusError: Your account does not have the necessary privileges
 ```
 
-An organization admin must grant access, or the SQL and function deployment must be done from a signed-in Supabase dashboard session with access to this project.
+SQL and function deployment must be done from a signed-in session with access to this project.
