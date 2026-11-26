@@ -275,7 +275,8 @@
   cursor: pointer;
   transition:
     border-color 0.2s ease,
-    background 0.2s ease;
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .sessionTime {
@@ -358,30 +359,71 @@
 
 /* 1 — Time only */
 .sessionGridBare {
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 10px;
 }
 
 .sessionCardBare {
   position: relative;
   display: grid;
-  place-items: center;
-  min-height: 64px;
-  padding: 12px;
+  align-content: center;
+  justify-items: center;
+  gap: 8px;
+  min-height: 82px;
+  padding: 16px 12px 14px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #0c1114 0%, #07090a 100%);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
   text-align: center;
+}
+
+.sessionCardBare::after {
+  content: '';
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline: 14px;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(45, 167, 196, 0.55),
+    transparent
+  );
+}
+
+.sessionCardBare:hover:not(:disabled) {
+  border-color: var(--cyan-soft);
+  transform: translateY(-1px);
+}
+
+.sessionCardBare.sessionCardActive {
+  border-color: var(--cyan);
+  background: linear-gradient(
+    180deg,
+    rgba(45, 167, 196, 0.16),
+    rgba(45, 167, 196, 0.06)
+  );
+}
+
+.sessionCardBare.sessionCardActive::after {
+  background: var(--cyan);
 }
 
 .bareTime {
   color: var(--text);
-  font-family: var(--font-anton), Impact, sans-serif;
-  font-size: 20px;
-  line-height: 1;
+  font-family: var(--font-cairo), Cairo, sans-serif;
+  font-size: 21px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
 }
 
 .sessionCardBare .lowBadge {
-  position: absolute;
-  inset-block-start: 6px;
-  inset-inline-end: 6px;
+  justify-self: center;
+  margin: 0;
+  padding: 3px 8px;
+  border-radius: 999px;
 }
 
 /* Shared low-availability badge; hidden unless two places or fewer remain. */
