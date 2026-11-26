@@ -11,6 +11,7 @@ import type {
   PaymentProvider,
 } from '@/lib/appointments/types';
 import styles from '../booking.module.css';
+import SessionPicker from './SessionPicker';
 
 type Props = {
   config: BookingConfig | null;
@@ -512,35 +513,11 @@ export default function BookingForm({ config }: Props) {
         <div className={styles.field}>
           <span className={styles.label}>جلسة الطبيب</span>
           {visibleSessions.length ? (
-            <div className={styles.sessionGrid}>
-              {visibleSessions.map((session) => {
-                const active = session.session_start === sessionStart;
-                const full = session.remaining <= 0;
-
-                return (
-                  <button
-                    key={session.session_start}
-                    type="button"
-                    className={`${styles.sessionCard} ${
-                      active ? styles.sessionCardActive : ''
-                    }`}
-                    disabled={full}
-                    aria-pressed={active}
-                    onClick={() => setSessionStart(session.session_start)}
-                  >
-                    <span className={styles.sessionTime} dir="ltr">
-                      {sessionRange(session)}
-                    </span>
-                    <span className={styles.sessionMeta}>
-                      وصول الطبيب {shortTime(session.doctor_arrival_time)}
-                    </span>
-                    <span className={styles.sessionRemaining}>
-                      {full ? 'اكتملت' : `متبقٍ ${session.remaining}`}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+            <SessionPicker
+              sessions={visibleSessions}
+              value={sessionStart}
+              onChange={setSessionStart}
+            />
           ) : (
             <p className={styles.message}>
               {sessionsLoading

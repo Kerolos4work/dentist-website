@@ -315,6 +315,230 @@
   cursor: not-allowed;
 }
 
+/* Dev-only design preview: five ways to present the same session options. */
+.designSwitcher {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 12px;
+}
+
+.designSwitcherLabel {
+  margin-inline-end: 4px;
+  color: var(--dim);
+  font-size: 11px;
+}
+
+.designButton {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.designButton:hover {
+  border-color: var(--cyan-soft);
+  color: var(--text);
+}
+
+.designButtonActive {
+  border-color: var(--cyan);
+  background: rgba(45, 167, 196, 0.12);
+  color: var(--cyan-soft);
+}
+
+/* 2 — Rail */
+.sessionGridRail {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.sessionCardRail {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  align-items: center;
+  gap: 12px;
+  min-height: 0;
+  padding: 10px 12px;
+}
+
+.railNode {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(45, 167, 196, 0.38);
+  border-radius: 50%;
+  color: var(--cyan-soft);
+  font-family: var(--font-anton), Impact, sans-serif;
+  font-size: 12px;
+}
+
+.sessionCardRail.sessionCardActive .railNode {
+  border-color: var(--cyan);
+  background: var(--cyan);
+  color: #04171d;
+}
+
+.railBody {
+  display: grid;
+  gap: 2px;
+}
+
+/* 3 — Tiles */
+.sessionGridTile {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.sessionCardTile {
+  gap: 6px;
+  min-height: 104px;
+  padding: 14px;
+  border-top: 2px solid var(--tile-accent, var(--cyan));
+}
+
+.sessionCardTile[data-index='0'] {
+  --tile-accent: #9ad9e5;
+}
+
+.sessionCardTile[data-index='1'] {
+  --tile-accent: #77cde0;
+}
+
+.sessionCardTile[data-index='2'] {
+  --tile-accent: #55bfd7;
+}
+
+.sessionCardTile[data-index='3'] {
+  --tile-accent: #2da7c4;
+}
+
+.sessionCardTile[data-index='4'] {
+  --tile-accent: #7ba9d8;
+}
+
+.tileIndex {
+  color: var(--tile-accent, var(--cyan-soft));
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+
+.tileTime {
+  color: var(--text);
+  font-family: var(--font-anton), Impact, sans-serif;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.sessionCardActive .tileTime {
+  color: var(--cyan-soft);
+}
+
+/* 4 — Pills */
+.sessionGridPill {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sessionCardPill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 8px 14px;
+  border-radius: 999px;
+}
+
+.pillTime {
+  color: var(--text);
+  font-family: var(--font-anton), Impact, sans-serif;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+}
+
+.pillMeta {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.pillRemaining {
+  margin-inline-start: auto;
+  color: var(--cyan-soft);
+  font-size: 11px;
+}
+
+.sessionCardPill.sessionCardActive {
+  border-color: var(--cyan);
+  background: var(--cyan);
+}
+
+.sessionCardPill.sessionCardActive .pillTime,
+.sessionCardPill.sessionCardActive .pillMeta,
+.sessionCardPill.sessionCardActive .pillRemaining {
+  color: #04171d;
+}
+
+/* 5 — Split */
+.sessionGridSplit {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.sessionCardSplit {
+  grid-template-columns: minmax(118px, 0.9fr) minmax(0, 1fr);
+  gap: 0;
+  min-height: 64px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.splitTime {
+  display: grid;
+  align-content: center;
+  gap: 2px;
+  padding: 10px 14px;
+  border-inline-end: 1px solid var(--line);
+  background: rgba(45, 167, 196, 0.06);
+}
+
+.splitTime b {
+  color: var(--text);
+  font-family: var(--font-anton), Impact, sans-serif;
+  font-size: 18px;
+  line-height: 1.1;
+}
+
+.splitTime span {
+  color: var(--dim);
+  font-size: 10px;
+}
+
+.splitMeta {
+  display: grid;
+  align-content: center;
+  gap: 2px;
+  padding: 10px 14px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.sessionCardSplit.sessionCardActive .splitTime {
+  background: rgba(45, 167, 196, 0.16);
+}
+
 .confirmationCard {
   max-width: 620px;
   margin: 0 auto;
