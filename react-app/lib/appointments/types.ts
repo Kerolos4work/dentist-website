@@ -81,7 +81,11 @@ export type AvailableSlot = {
 
 export type Appointment = {
   id: string;
-  patient_id: string;
+  patient_id: string | null;
+  patient_name: string | null;
+  patient_phone: string | null;
+  patient_email: string | null;
+  booking_reference: string;
   service_id: string;
   service_label: string;
   fee_amount: number;
@@ -98,5 +102,23 @@ export type Appointment = {
   reviewed_by: string | null;
   reviewed_at: string | null;
   checked_in_at: string | null;
+  created_at: string;
+};
+
+export type GuestAppointment = {
+  id: string;
+  booking_reference: string;
+  service_label: string;
+  appointment_date: string;
+  start_time: string;
+  end_time: string | null;
+  status: AppointmentStatus;
+  payment_status: PaymentStatus;
+  payment_provider: PaymentProvider | null;
+  fee_amount: number;
+  currency: string;
+  patient_name: string | null;
+  patient_phone: string | null;
+  patient_note: string | null;
   created_at: string;
 };

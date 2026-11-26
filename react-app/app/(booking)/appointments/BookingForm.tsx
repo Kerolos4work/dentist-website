@@ -1,21 +1,54 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { getBrowserClient } from '@/lib/supabase/client';
 import { appointmentServices } from '@/lib/appointments/services';
 import { todayIso } from '@/lib/appointments/slots';
 import type { BookingConfig, PaymentProvider } from '@/lib/appointments/types';
-import type { SessionContext } from '@/lib/appointments/data';
 import styles from '../booking.module.css';
 
 type Props = {
-  session: SessionContext;
   config: BookingConfig | null;
 };
 
-export default function BookingForm({ session, config }: Props) {
-  const router = useRouter();
+type Confirmation = {
+  reference: string;
+  service: string;
+  date: string;
+  time: string;
+  status: string;
+  paymentStatus: string;
+};
+
+type BookingResponse = {
+  bookingReference?: string;
+  status?: string;
+  paymentStatus?: string;
+  redirectUrl?: string;
+  error?: string;
+};
+
+async function functionErrorMessage(error: unknown): Promise<string> {
+  const response = (error as { context?: Response } | null)?.context;
+  if (response) {
+    try {
+      const body = (await response.json()) as BookingResponse;
+      if (body.error) return body.error;
+    } catch {
+      // Fall through to the generic message below.
+    }
+  }
+
+  const message = (error as { message?: string } | null)?.message ?? '';
+  if (message && /[\u0600-\u06FF]/.test(message)) return message;
+  return 'تعذّر إتمام الحجز. حاول لاحقًا.';
+}
+
+export default function BookingForm({ config }: Props) {
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [serviceId, setServiceId] = useState(appointmentServices[0].id);
   const [date, setDate] = useState(todayIso());
   const [time, setTime] = useState('');
@@ -25,6 +58,7 @@ export default function BookingForm({ session, config }: Props) {
   const [busy, setBusy] = useState(false);
   const [slots, setSlots] = useState<string[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(true);
+  const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
 
   // Availability comes from the database so session quotas and one-off
   // closures are applied at the same place that enforces them on booking.
@@ -45,7 +79,7 @@ export default function BookingForm({ session, config }: Props) {
         if (!active) return;
         if (error) {
           setSlots([]);
-          setStatus(error.message);
+          setStatus('تعذّر تحميل الأوقات المتاحة. حاول لاحقًا.');
         } else {
           setSlots(
             ((data ?? []) as { slot: string }[]).map((row) => row.slot.slice(0, 5))
@@ -65,77 +99,25 @@ export default function BookingForm({ session, config }: Props) {
     config?.fawry_enabled ? 'fawry' : null,
   ].filter(Boolean) as PaymentProvider[];
 
-  if (!session.configured || !config) {
-    return (
-      <div className={styles.card}>
-        <p className={`${styles.message} ${styles.error}`}>
-          الحجوزات الإلكترونية غير مفعّلة بعد. اتصل بالعيادة أو استخدم واتساب
-          للحجز.
-        </p>
-        <div className={styles.actions}>
-          <a href="tel:+201285827427" className={styles.primary} dir="ltr">
-            +20 12 85827427
-          </a>
-          <a
-            href="https://wa.me/201285827427"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.ghost}
-          >
-            واتساب
-          </a>
-        </div>
-      </div>
-    );
-  }
-
-  if (!session.userId) {
-    return (
-      <div className={styles.card}>
-        <h2 className={styles.cardTitle}>سجّل الدخول أولًا</h2>
-        <p className={styles.cardNote}>
-          يمكنك المتابعة بحساب Google أو Microsoft. لا تُطلب أي بيانات طبية.
-        </p>
-        <div className={styles.actions}>
-          <button
-            type="button"
-            className={styles.primary}
-            onClick={() => void signIn('google')}
-          >
-            Google
-          </button>
-          <button
-            type="button"
-            className={styles.ghost}
-            onClick={() => void signIn('azure')}
-          >
-            Microsoft
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  async function signIn(target: 'google' | 'azure') {
-    const supabase = getBrowserClient();
-    if (!supabase) return;
-    setBusy(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: target,
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/appointments`,
-      },
-    });
-    if (error) {
-      setStatus(error.message);
-      setBusy(false);
-    }
-  }
+  const selectedService =
+    appointmentServices.find((service) => service.id === serviceId) ??
+    appointmentServices[0];
 
   async function submit() {
-    const supabase = getBrowserClient();
-    if (!supabase) return;
+    if (confirmation) return;
 
+    if (fullName.trim().length < 2) {
+      setStatus('اكتب اسمك كاملًا.');
+      return;
+    }
+    if (!phone.trim()) {
+      setStatus('اكتب رقم الهاتف.');
+      return;
+    }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setStatus('البريد الإلكتروني غير صالح.');
+      return;
+    }
     if (!time) {
       setStatus('اختر وقتًا من الأوقات المتاحة.');
       return;
@@ -145,41 +127,182 @@ export default function BookingForm({ session, config }: Props) {
       return;
     }
 
+    const supabase = getBrowserClient();
+    if (!supabase) return;
+
     setBusy(true);
     setStatus('');
     const { data, error } = await supabase.functions.invoke('create-booking', {
-      body: { serviceId, date, time, note, provider },
+      body: {
+        fullName: fullName.trim(),
+        phone: phone.trim(),
+        email: email.trim() || null,
+        serviceId,
+        date,
+        time,
+        note,
+        provider,
+      },
     });
 
     if (error) {
-      setStatus(error.message);
+      setStatus(await functionErrorMessage(error));
       setBusy(false);
       return;
     }
 
-    if (data?.redirectUrl) {
-      window.location.assign(data.redirectUrl);
+    const booked = data as BookingResponse;
+    if (booked.error) {
+      setStatus(booked.error);
+      setBusy(false);
       return;
     }
 
-    router.push('/my-appointments');
-    router.refresh();
+    setConfirmation({
+      reference: booked.bookingReference ?? '',
+      service: selectedService.label,
+      date,
+      time,
+      status: booked.status === 'awaiting_payment' ? 'بانتظار الدفع' : 'مؤكد',
+      paymentStatus: booked.paymentStatus === 'due_at_clinic' ? 'يدفع في العيادة' : 'جارٍ الدفع',
+    });
+
+    if (booked.redirectUrl) {
+      window.location.assign(booked.redirectUrl);
+      return;
+    }
+    setBusy(false);
   }
 
-  const selectedService =
-    appointmentServices.find((service) => service.id === serviceId) ??
-    appointmentServices[0];
+  if (!config) {
+    return (
+      <div className={styles.card}>
+        <p className={`${styles.message} ${styles.error}`}>
+          الحجوزات الإلكترونية غير مفعّلة بعد. اتصل بالعيادة مباشرة.
+        </p>
+        <div className={styles.actions}>
+          <a href="tel:+201285827427" className={styles.primary} dir="ltr">
+            +20 12 85827427
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  if (confirmation) {
+    return (
+      <div className={styles.card}>
+        <h2 className={styles.cardTitle}>تم تسجيل طلبك</h2>
+        <p className={styles.cardNote}>
+          احتفظ برقم الحجز، واستخدم الاسم ورقم الهاتف اللذين أدخلتهما عند الحجز.
+        </p>
+
+        <div className={styles.summary}>
+          <div className={styles.summaryRow}>
+            <span>رقم الحجز</span>
+            <b dir="ltr">{confirmation.reference}</b>
+          </div>
+          <div className={styles.summaryRow}>
+            <span>التخصص</span>
+            <b>{confirmation.service}</b>
+          </div>
+          <div className={styles.summaryRow}>
+            <span>اليوم</span>
+            <b dir="ltr">{confirmation.date}</b>
+          </div>
+          <div className={styles.summaryRow}>
+            <span>الوقت</span>
+            <b dir="ltr">{confirmation.time}</b>
+          </div>
+          <div className={styles.summaryRow}>
+            <span>الحالة</span>
+            <b>{confirmation.status}</b>
+          </div>
+          <div className={styles.summaryRow}>
+            <span>الدفع</span>
+            <b>{confirmation.paymentStatus}</b>
+          </div>
+        </div>
+
+        <div className={styles.actions}>
+          <Link href="/my-appointments" className={styles.primary}>
+            تابع موعدك
+          </Link>
+          <Link href="/appointments" className={styles.ghost}>
+            حجز جديد
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.grid}>
       <div className={styles.card}>
+        <h2 className={styles.cardTitle}>بيانات المريض</h2>
+        <p className={styles.cardNote}>
+          لا تحتاج إلى حساب. نستخدم الاسم ورقم الهاتف لمتابعة حجزك وإلغائه.
+        </p>
+
+        {status ? <p className={`${styles.message} ${styles.error}`}>{status}</p> : null}
+
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="fullName">
+            الاسم
+          </label>
+          <input
+            id="fullName"
+            type="text"
+            autoComplete="name"
+            required
+            minLength={2}
+            maxLength={80}
+            className={styles.input}
+            value={fullName}
+            onChange={(event) => setFullName(event.target.value)}
+            placeholder="الاسم كما يظهر في جواز السفر أو الهوية"
+          />
+        </div>
+
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="phone">
+            رقم الهاتف
+          </label>
+          <input
+            id="phone"
+            type="tel"
+            dir="ltr"
+            inputMode="tel"
+            autoComplete="tel"
+            required
+            className={styles.input}
+            value={phone}
+            onChange={(event) => setPhone(event.target.value)}
+            placeholder="+20 12 85827427"
+          />
+        </div>
+
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="email">
+            البريد الإلكتروني (اختياري)
+          </label>
+          <input
+            id="email"
+            type="email"
+            dir="ltr"
+            autoComplete="email"
+            className={styles.input}
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder="name@example.com"
+          />
+        </div>
+
         <h2 className={styles.cardTitle}>تفاصيل الموعد</h2>
         <p className={styles.cardNote}>
           الأوقات المعروضة من إعدادات العيادة. لا يمكن حجز أكثر من مريض في نفس
           الوقت.
         </p>
-
-        {status ? <p className={styles.message}>{status}</p> : null}
 
         <div className={styles.field}>
           <label className={styles.label} htmlFor="service">
@@ -260,7 +383,13 @@ export default function BookingForm({ session, config }: Props) {
           <button
             type="button"
             className={styles.primary}
-            disabled={busy || !time || (needsPayment && !provider)}
+            disabled={
+              busy ||
+              fullName.trim().length < 2 ||
+              !phone.trim() ||
+              !time ||
+              (needsPayment && !provider)
+            }
             onClick={() => void submit()}
           >
             {busy ? 'جارٍ الإرسال…' : needsPayment ? 'ادفع وأكّد' : 'تأكيد الحجز'}
@@ -271,6 +400,10 @@ export default function BookingForm({ session, config }: Props) {
       <aside className={styles.card}>
         <h2 className={styles.cardTitle}>ملخص</h2>
         <div className={styles.summary}>
+          <div className={styles.summaryRow}>
+            <span>المريض</span>
+            <b>{fullName.trim() || '—'}</b>
+          </div>
           <div className={styles.summaryRow}>
             <span>التخصص</span>
             <b>{selectedService.label}</b>
@@ -319,7 +452,7 @@ export default function BookingForm({ session, config }: Props) {
               </div>
               {!availableProviders.length ? (
                 <p className={`${styles.message} ${styles.error}`}>
-                  لم يُفعّل أي مزود دفع. غيّر الإعدادات أو تواصل مع العيادة.
+                  لم يُفعّل أي مزود دفع. تواصل مع العيادة.
                 </p>
               ) : null}
             </div>

@@ -55,13 +55,7 @@ export default function V3Layout({
             <a href={site.phoneHref} dir="ltr">
               {site.phoneDisplay}
             </a>
-            <a
-              href={site.whatsapp}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              واتساب
-            </a>
+            <Link href="/my-appointments">مواعيدي</Link>
             <a
               href={site.googleMaps}
               target="_blank"

@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import Header from '@/components/Header';
 import { site } from '@/data/site';
 import styles from './booking.module.css';
@@ -20,12 +21,7 @@ export default function BookingLayout({
             <a href={site.phoneHref} dir="ltr">
               {site.phoneDisplay}
             </a>
-            <a href={site.whatsapp} target="_blank" rel="noopener noreferrer">
-              واتساب
-            </a>
-            <a href={site.vezeeta} target="_blank" rel="noopener noreferrer">
-              فيزيتا
-            </a>
+            <Link href="/my-appointments">مواعيدي</Link>
           </div>
         </div>
       </footer>

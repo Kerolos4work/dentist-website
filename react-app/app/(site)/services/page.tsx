@@ -28,20 +28,15 @@ export default function ServicesPage() {
             <div className={styles.headSide}>
               <p className={styles.lead}>
                 ثماني تخصصات في مكان واحد، بشرح واضح لكل خطوة قبل البدء. سعر
-                الكشف {site.fee} على Vezeeta.
+                الكشف {site.fee}. احجز الوقت المناسب من الموقع.
               </p>
 
               <div className={styles.feeCard}>
                 <span className={styles.feeLabel}>سعر الكشف</span>
                 <b className={styles.feeValue}>{site.fee}</b>
-                <a
-                  href={site.vezeeta}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.feeLink}
-                >
-                  احجز عبر Vezeeta <span aria-hidden="true">←</span>
-                </a>
+                <Link href="/appointments" className={styles.feeLink}>
+                  احجز موعد <span aria-hidden="true">←</span>
+                </Link>
               </div>
             </div>
           </div>

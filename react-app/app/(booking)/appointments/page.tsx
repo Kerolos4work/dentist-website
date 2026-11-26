@@ -1,8 +1,5 @@
 import type { Metadata } from 'next';
-import {
-  getBookingConfig,
-  getSessionContext,
-} from '@/lib/appointments/data';
+import { getBookingConfig } from '@/lib/appointments/data';
 import BookingForm from './BookingForm';
 import styles from '../booking.module.css';
 
@@ -12,10 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AppointmentsPage() {
-  const [session, config] = await Promise.all([
-    getSessionContext(),
-    getBookingConfig(),
-  ]);
+  const config = await getBookingConfig();
 
   return (
     <div className={styles.page}>
@@ -23,12 +17,11 @@ export default async function AppointmentsPage() {
         <p className={styles.kicker}>APPOINTMENT / REQUEST</p>
         <h1 className={styles.title}>احجز موعدك</h1>
         <p className={styles.lead}>
-          اختر التخصص والوقت المناسب، ثم تابع حالة الحجز من صفحة «مواعيدي».
-          الكشف 300 جنيه، والمواعيد تُؤكَّد وفق إعدادات العيادة.
+          اكتب اسمك ورقم هاتفك، واختر التخصص والوقت المتاح. ستحصل على رقم حجز تتابع به موعدك من صفحة «مواعيدي». الكشف 300 جنيه.
         </p>
       </header>
 
-      <BookingForm session={session} config={config} />
+      <BookingForm config={config} />
     </div>
   );
 }

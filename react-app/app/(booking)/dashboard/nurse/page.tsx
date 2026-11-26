@@ -89,7 +89,12 @@ function AppointmentInfo({
   appointment: Awaited<ReturnType<typeof getStaffAppointments>>[number];
   profiles: Record<string, { full_name: string | null; phone: string | null }>;
 }) {
-  const patient = profiles[appointment.patient_id];
+  const profile = appointment.patient_id
+    ? profiles[appointment.patient_id]
+    : undefined;
+  const patientName = appointment.patient_name ?? profile?.full_name ?? '—';
+  const patientPhone = appointment.patient_phone ?? profile?.phone ?? '—';
+
   return (
     <>
       <div className={styles.itemHead}>
@@ -99,11 +104,15 @@ function AppointmentInfo({
       <div className={styles.itemMeta}>
         <div>
           <span>المريض</span>
-          <b>{patient?.full_name ?? '—'}</b>
+          <b>{patientName}</b>
         </div>
         <div>
           <span>الهاتف</span>
-          <b dir="ltr">{patient?.phone ?? '—'}</b>
+          <b dir="ltr">{patientPhone}</b>
+        </div>
+        <div>
+          <span>رقم الحجز</span>
+          <b dir="ltr">{appointment.booking_reference}</b>
         </div>
         <div>
           <span>اليوم</span>

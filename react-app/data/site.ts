@@ -68,7 +68,7 @@ export const site = {
   hours: 'المواعيد تُؤكَّد عند الحجز',
   hoursNote: 'راجع مواعيد اليوم على Google Maps',
   fee: '300 ج.م',
-  feeNote: 'سعر الكشف على Vezeeta',
+  feeNote: 'سعر الكشف داخل العيادة',
   waitingTime: '31 دقيقة',
   googleRating: '5.0',
   googleReviewCount: '100',
@@ -99,13 +99,13 @@ export const site = {
       value: '300',
       label: 'سعر الكشف',
       meta: 'جنيه مصري',
-      href: 'https://www.vezeeta.com/en/dr/Doctor-Adel-yosery-abd-elaziz-Dentistry',
+      href: '/appointments',
     },
     {
       value: '8',
       label: 'تخصصات',
       meta: 'تحت سقف واحد',
-      href: 'https://www.vezeeta.com/en/dr/Doctor-Adel-yosery-abd-elaziz-Dentistry',
+      href: '/services',
     },
   ] as const,
   services: [
@@ -304,9 +304,6 @@ export const site = {
       label: 'Google Maps',
       href: 'https://www.google.com/maps/place/Dr+Adel+Yousry+%7C+%D8%AF.%D8%B9%D8%A7%D8%AF%D9%84+%D9%8A%D8%B3%D8%B1%D9%8A%E2%80%AD/@30.1007519,31.3424207,17z/data=!3m1!4b1!4m6!3m5!1s0x1458150e2e98c113:0x88b184d1300b38d4!8m2!3d30.1007519!4d31.3424207!16s%2Fg%2F11h1m5c3w2?entry=ttu',
     },
-    {
-      label: 'Vezeeta',
-      href: 'https://www.vezeeta.com/en/dr/Doctor-Adel-yosery-abd-elaziz-Dentistry',
-    },
+
   ] as const,
 } as const;

@@ -37,14 +37,9 @@ export default function HomePage() {
             </p>
 
             <div className={styles.heroActions}>
-              <a
-                href={site.vezeeta}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.primary}
-              >
-                احجز على Vezeeta
-              </a>
+              <Link href="/appointments" className={styles.primary}>
+                احجز موعد
+              </Link>
               <Link href="/results" className={styles.secondary}>
                 شاهد الحالات
                 <span aria-hidden="true">←</span>
@@ -395,14 +390,9 @@ export default function HomePage() {
                 >
                   الاتجاهات
                 </a>
-                <a
-                  href={site.whatsapp}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.ghost}
-                >
-                  واتساب
-                </a>
+                <Link href="/appointments" className={styles.ghost}>
+                  احجز موعد
+                </Link>
               </div>
             </div>
 

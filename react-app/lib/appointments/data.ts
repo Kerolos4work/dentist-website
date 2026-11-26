@@ -58,7 +58,7 @@ export async function getBookingConfig(): Promise<BookingConfig | null> {
 }
 
 const appointmentColumns =
-  'id, patient_id, service_id, service_label, fee_amount, currency, appointment_date, start_time, end_time, status, payment_provider, payment_status, payment_reference, patient_note, nurse_note, reviewed_by, reviewed_at, checked_in_at, created_at';
+  'id, patient_id, patient_name, patient_phone, patient_email, booking_reference, service_id, service_label, fee_amount, currency, appointment_date, start_time, end_time, status, payment_provider, payment_status, payment_reference, patient_note, nurse_note, reviewed_by, reviewed_at, checked_in_at, created_at';
 
 export async function getPatientAppointments(
   patientId: string

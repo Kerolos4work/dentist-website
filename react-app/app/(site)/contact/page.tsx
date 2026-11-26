@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { site } from '@/data/site';
 import styles from './page.module.css';
 
 export const metadata: Metadata = {
   title: 'تواصل',
   description:
-    'عنوان عيادة د. عادل يسري: 60 شارع نخلة المطيعي، ميدان تريومف، مصر الجديدة. احجز عبر Vezeeta أو اتصل بالعيادة.',
+    'عنوان عيادة د. عادل يسري: 60 شارع نخلة المطيعي، ميدان تريومف، مصر الجديدة. احجز من الموقع أو تواصل مع العيادة.',
 };
 
 export default function ContactPage() {
@@ -20,8 +21,8 @@ export default function ContactPage() {
             <span>مصر الجديدة</span>
           </h1>
           <p className={styles.lead}>
-            {site.clinicName} — فوق محل فلورينا، ميدان تريومف. الحجز متاح على
-            Vezeeta أو بالاتصال المباشر.
+            {site.clinicName} — فوق محل فلورينا، ميدان تريومف. احجز موعدك من
+            الموقع، أو تواصل مع العيادة للاستفسار.
           </p>
         </div>
 
@@ -66,15 +67,10 @@ export default function ContactPage() {
             </dl>
 
             <div className={styles.booking}>
-              <a
-                href={site.vezeeta}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.bookingCard}
-              >
-                <b>احجز على Vezeeta</b>
-                <small>اختيار موعد متاح أونلاين</small>
-              </a>
+              <Link href="/appointments" className={styles.bookingCard}>
+                <b>احجز موعد</b>
+                <small>اختر الوقت المتاح وأكّد الحجز</small>
+              </Link>
               <a href={site.phoneHref} className={styles.bookingCard}>
                 <b>اتصل بالعيادة</b>
                 <small dir="ltr">{site.phoneDisplay}</small>
@@ -85,8 +81,8 @@ export default function ContactPage() {
                 rel="noopener noreferrer"
                 className={styles.bookingCard}
               >
-                <b>واتساب</b>
-                <small>رسالة سريعة لتأكيد الموعد</small>
+                <b>استفسار عبر واتساب</b>
+                <small>للاستفسار فقط — لا يُستخدم لتأكيد الحجز</small>
               </a>
             </div>
 

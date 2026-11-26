@@ -63,14 +63,9 @@ export default function AboutPage() {
               </div>
 
               <div className={styles.actions}>
-                <a
-                  href={site.vezeeta}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.primary}
-                >
-                  احجز على Vezeeta
-                </a>
+                <Link href="/appointments" className={styles.primary}>
+                  احجز موعد
+                </Link>
                 <Link href="/results" className={styles.secondary}>
                   شاهد الحالات <span aria-hidden="true">←</span>
                 </Link>

@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { site } from '@/data/site';
 import SmileArc from './SmileArc';
 import styles from './CtaBand.module.css';
@@ -12,23 +13,14 @@ export default function CtaBand() {
           احجز موعدك مع د. عادل يسري
         </h2>
         <p className={styles.sub}>
-          سعر الكشف {site.fee} على Vezeeta، أو اتصل بالعيادة مباشرة.
+          سعر الكشف {site.fee}. اختر الوقت المتاح وأكّد حجزك من الموقع دون حساب.
         </p>
 
         <div className={styles.actions}>
-          <a
-            href={site.vezeeta}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.primary}
-          >
-            احجز عبر Vezeeta
-          </a>
-          <a
-            href={site.phoneHref}
-            dir="ltr"
-            className={styles.secondary}
-          >
+          <Link href="/appointments" className={styles.primary}>
+            احجز موعد
+          </Link>
+          <a href={site.phoneHref} dir="ltr" className={styles.secondary}>
             {site.phoneDisplay}
           </a>
         </div>

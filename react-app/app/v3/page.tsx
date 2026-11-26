@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
 import { site } from '@/data/site';
 import styles from './page.module.css';
 
@@ -29,14 +30,9 @@ export default function V3Page() {
             </p>
 
             <div className={styles.heroActions}>
-              <a
-                href={site.vezeeta}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.primary}
-              >
+              <Link href="/appointments" className={styles.primary}>
                 احجز الكشف
-              </a>
+              </Link>
               <a href="#protocol" className={styles.quietLink}>
                 استعرض الخطة <span aria-hidden="true">↓</span>
               </a>
@@ -93,26 +89,16 @@ export default function V3Page() {
             <span>VEZEETA</span>
             <small>{site.vezeetaReviewCount} visitors</small>
           </a>
-          <a
-            href={site.vezeeta}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.readout}
-          >
+          <Link href="/appointments" className={styles.readout}>
             <b dir="ltr">{site.fee}</b>
             <span> الكشف</span>
             <small>{site.feeNote}</small>
-          </a>
-          <a
-            href={site.vezeeta}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.readout}
-          >
+          </Link>
+          <div className={styles.readout}>
             <b dir="ltr">31</b>
             <span> دقيقة انتظار</span>
-            <small>حسب Vezeeta</small>
-          </a>
+            <small>متوسط الانتظار</small>
+          </div>
         </div>
       </section>
 
@@ -343,14 +329,9 @@ export default function V3Page() {
                 >
                   الاتجاهات
                 </a>
-                <a
-                  href={site.whatsapp}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.quietLink}
-                >
-                  واتساب <span aria-hidden="true">↗</span>
-                </a>
+                <Link href="/appointments" className={styles.quietLink}>
+                  حجز موعد <span aria-hidden="true">↗</span>
+                </Link>
               </div>
             </div>
 
@@ -376,20 +357,14 @@ export default function V3Page() {
             <div>
               <h2>اعتمد خطوتك التالية</h2>
               <p>
-                احجز الكشف على Vezeeta، أو اتصل بالعيادة مباشرة في ميدان
-                تريومف.
+                احجز موعدك من الموقع، أو اتصل بالعيادة مباشرة في ميدان تريومف.
               </p>
             </div>
 
             <div className={styles.approvalActions}>
-              <a
-                href={site.vezeeta}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.approvalPrimary}
-              >
+              <Link href="/appointments" className={styles.approvalPrimary}>
                 احجز الآن
-              </a>
+              </Link>
               <a href={site.phoneHref} className={styles.approvalGhost} dir="ltr">
                 {site.phoneDisplay}
               </a>

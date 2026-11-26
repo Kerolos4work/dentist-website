@@ -32,13 +32,8 @@ export default function Footer() {
               {item.label}
             </Link>
           ))}
-          <a
-            href={site.vezeeta}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            احجز على Vezeeta
-          </a>
+          <Link href="/appointments">حجز موعد</Link>
+          <Link href="/my-appointments">مواعيدي</Link>
         </div>
 
         <div className={styles.socials}>

@@ -8,14 +8,9 @@ export default function MobileActionBar() {
       <a href={site.phoneHref} className={styles.item}>
         اتصال
       </a>
-      <a
-        href={site.whatsapp}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={styles.item}
-      >
-        واتساب
-      </a>
+      <Link href="/my-appointments" className={styles.item}>
+        مواعيدي
+      </Link>
       <Link href="/appointments" className={`${styles.item} ${styles.accent}`}>
         احجز
       </Link>
